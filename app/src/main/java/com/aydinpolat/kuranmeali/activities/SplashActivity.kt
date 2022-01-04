@@ -1,4 +1,4 @@
-package com.aydinpolat.kuranmeali
+package com.aydinpolat.kuranmeali.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +13,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.listenMealRoot.setOnClickListener {
-            val intent = Intent(this,MainActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
     }

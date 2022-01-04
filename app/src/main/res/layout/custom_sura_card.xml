@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginTop="12dp"
+    android:background="@drawable/custom_radius_background">
+
+        <TextView
+            android:id="@+id/sura_card_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="36dp"
+            android:layout_gravity="center_vertical"
+            android:text="1"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginStart="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fatiha Suresi"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:layout_marginStart="48dp"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(176 Ayet)"
+            android:textSize="15sp"
+            android:textColor="@color/black"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="12dp"
+            android:layout_gravity="end|bottom"/>
+
+</FrameLayout>

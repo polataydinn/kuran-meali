@@ -1,19 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MotionScene 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <Transition
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@id/start"
         motion:duration="1000">
-       <KeyFrameSet>
-       </KeyFrameSet>
+        <KeyFrameSet></KeyFrameSet>
         <OnClick motion:targetId="@+id/menu_button" />
+        <OnClick motion:targetId="@+id/logout" />
 
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
+        <Constraint
+            android:id="@+id/menu_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:visibility="visible"
+            motion:layout_constraintBottom_toTopOf="@+id/logout"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintVertical_bias="0.24000001" />
+
+        <Constraint
+            android:id="@+id/black_background_shape"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="1dp"
+            android:background="@drawable/transparent_foreground_black"
+            android:visibility="invisible"/>
+
+        <Constraint
+            android:id="@+id/textView"
+            motion:layout_constraintEnd_toEndOf="@+id/nav_bar" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -21,28 +43,47 @@
             android:id="@+id/menu_button"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:visibility="invisible"
             android:layout_marginStart="24dp"
-            motion:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"
+            android:visibility="invisible"
             motion:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp" />
+            motion:layout_constraintTop_toTopOf="parent" />
+
+
+        <Constraint
+            android:id="@+id/black_background_shape"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="1dp"
+            android:background="@drawable/transparent_foreground_black"
+            android:visibility="visible"/>
+
         <Constraint
             android:id="@+id/nav_bar"
-            android:elevation="1dp"
             android:layout_width="300dp"
             android:layout_height="400dp"
+            android:elevation="1dp"
             android:visibility="visible"
-            motion:layout_constraintTop_toTopOf="parent"
-            motion:layout_constraintStart_toStartOf="parent" />
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
         <Constraint
             android:id="@+id/logout"
-            android:elevation="2dp"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:visibility="visible"
             android:layout_marginStart="24dp"
-            motion:layout_constraintTop_toTopOf="@+id/nav_bar"
+            android:layout_marginTop="30dp"
+            android:elevation="2dp"
+            android:visibility="visible"
             motion:layout_constraintStart_toStartOf="@+id/nav_bar"
-            android:layout_marginTop="30dp" />
+            motion:layout_constraintTop_toTopOf="@+id/nav_bar" />
+        <Constraint
+            android:id="@+id/menu_item_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="32dp"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:visibility="visible" />
     </ConstraintSet>
 </MotionScene>
