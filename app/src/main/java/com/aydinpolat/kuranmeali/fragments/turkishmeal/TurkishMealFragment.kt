@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.databinding.FragmentTurkishMealBinding
+import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 
 class TurkishMealFragment : Fragment() {
     private lateinit var _binding: FragmentTurkishMealBinding
@@ -22,5 +23,10 @@ class TurkishMealFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.turkishMealBackPress.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.main_container_view, MainFragment())?.addToBackStack("")
+                ?.commit()
+        }
     }
 }

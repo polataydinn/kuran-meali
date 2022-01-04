@@ -5,11 +5,15 @@
     <Transition
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@id/start"
-        motion:duration="1000">
-        <KeyFrameSet></KeyFrameSet>
-        <OnClick motion:targetId="@+id/menu_button" />
-        <OnClick motion:targetId="@+id/logout" />
+        motion:duration="300">
+        <OnClick motion:targetId="@+id/menu_button"/>
+    </Transition>
 
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="300">
+        <OnClick motion:targetId="@+id/logout" />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

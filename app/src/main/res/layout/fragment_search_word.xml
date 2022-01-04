@@ -8,7 +8,7 @@
     tools:context=".fragments.searchword.SearchWordFragment">
 
     <ImageView
-        android:id="@+id/menu_button"
+        android:id="@+id/search_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -19,12 +19,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/linearLayout5"
+        android:id="@+id/search_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/profile_button"
-        app:layout_constraintStart_toEndOf="@+id/menu_button"
-        app:layout_constraintTop_toTopOf="@+id/menu_button">
+        app:layout_constraintStart_toEndOf="@+id/search_back_press"
+        app:layout_constraintTop_toTopOf="@+id/search_back_press">
 
         <TextView
             android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+        app:layout_constraintTop_toBottomOf="@+id/search_listen_meal_text" />
 
     <FrameLayout
         android:id="@+id/search_et"
@@ -99,11 +99,12 @@
             tools:ignore="RtlSymmetry" />
     </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <RadioGroup
+        android:id="@+id/search_radio_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_et">
@@ -112,14 +113,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Sure ve ayet ara"
+            android:buttonTint="@color/white"
             android:textColor="@color/white" />
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Kelime ara"
+            android:buttonTint="@color/white"
             android:textColor="@color/white" />
-    </LinearLayout>
+    </RadioGroup>
 
     <FrameLayout
         android:layout_width="wrap_content"
@@ -127,7 +130,7 @@
         android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        app:layout_constraintTop_toBottomOf="@+id/search_radio_group">
 
         <ImageView
             android:layout_width="80dp"

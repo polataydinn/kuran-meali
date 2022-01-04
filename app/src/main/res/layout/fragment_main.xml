@@ -92,7 +92,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout5"
+        android:id="@+id/search_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/profile_button"
@@ -149,14 +149,14 @@
 
             <ImageView
                 android:id="@+id/my_account_main"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="126dp"
+                android:layout_height="126dp"
                 android:src="@drawable/hesabim" />
 
             <ImageView
                 android:id="@+id/turkish_meal_main"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="126dp"
+                android:layout_height="126dp"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/turkce_meal" />
         </LinearLayout>
@@ -168,14 +168,14 @@
 
             <ImageView
                 android:id="@+id/search_word_main"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="126dp"
+                android:layout_height="126dp"
                 android:src="@drawable/kelime_ara" />
 
             <ImageView
                 android:id="@+id/continue_main"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="126dp"
+                android:layout_height="126dp"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/devam_et" />
         </LinearLayout>

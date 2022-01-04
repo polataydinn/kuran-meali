@@ -23,8 +23,8 @@
             android:layout_height="wrap_content"
             android:text="Fatiha Suresi"
             android:textColor="@color/black"
-            android:textSize="30sp"
-            android:layout_marginStart="48dp"
+            android:textSize="27sp"
+            android:layout_marginStart="40dp"
             android:layout_gravity="center_vertical"/>
 
         <TextView

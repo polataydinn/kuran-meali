@@ -8,7 +8,7 @@
     android:background="@drawable/main_bg">
 
     <ImageView
-        android:id="@+id/menu_button"
+        android:id="@+id/turkish_meal_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/linearLayout5"
+        android:id="@+id/search_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -56,6 +56,6 @@
         tools:listitem="@layout/custom_sura_card"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+        app:layout_constraintTop_toBottomOf="@+id/search_listen_meal_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
