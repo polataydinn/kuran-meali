@@ -13,11 +13,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.searchWordMain.setOnClickListener {
-            val searchFragment = SearchWordFragment()
 
-            this.supportFragmentManager.beginTransaction()
-                .replace(R.id.mainFragmentContainer, qiblaFragment).addToBackStack("").commit()
-        }
     }
 }
