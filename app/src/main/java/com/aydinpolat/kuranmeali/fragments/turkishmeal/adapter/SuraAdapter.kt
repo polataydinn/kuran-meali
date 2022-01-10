@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.CustomSuraCardBinding
 
-class SuraAdapter(val onClickLister:  (Suras) -> Unit): RecyclerView.Adapter<SuraViewHolder>() {
+class SuraAdapter(val onClickLister:  (Suras, Int) -> Unit): RecyclerView.Adapter<SuraViewHolder>() {
     private var suraList = emptyList<Suras>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SuraViewHolder {

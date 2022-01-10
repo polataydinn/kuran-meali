@@ -305,6 +305,7 @@
         android:src="@drawable/ic_comment_white" />
 
     <ImageView
+        android:id="@+id/continue_next_ayat"
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_gravity="end|bottom"
@@ -313,6 +314,7 @@
         android:src="@drawable/ic_next_white" />
 
     <ImageView
+        android:id="@+id/continue_previous_ayat"
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:layout_gravity="bottom|start"

@@ -28,9 +28,11 @@ class TurkishMealFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        suraAdapter = SuraAdapter {
-            val continueFragment = ContinueFragment()
-            continueFragment.suras = it
+        val continueFragment = ContinueFragment()
+
+        suraAdapter = SuraAdapter { sura, position ->
+            continueFragment.suras = sura
+            continueFragment.suraPosition = position
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
                 ?.commit()
@@ -40,6 +42,7 @@ class TurkishMealFragment : Fragment() {
             if (!it.isNullOrEmpty()){
                 binding.turkishMealLoading.visibility = View.INVISIBLE
                 suraAdapter.setSuraList(it)
+                continueFragment.listOfSuras = it
                 binding.turkishMealRecyclerview.adapter = suraAdapter
             }
         }
