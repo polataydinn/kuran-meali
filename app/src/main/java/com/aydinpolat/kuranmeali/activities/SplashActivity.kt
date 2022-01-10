@@ -15,6 +15,8 @@ class SplashActivity : AppCompatActivity() {
         binding.listenMealRoot.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            this.finish()
         }
     }
+
 }

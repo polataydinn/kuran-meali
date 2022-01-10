@@ -1,23 +1,24 @@
 package com.aydinpolat.kuranmeali.fragments.continuefragment
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import com.aydinpolat.kuranmeali.R
+import com.aydinpolat.kuranmeali.activities.MainActivity
 import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
 import com.aydinpolat.kuranmeali.fragments.turkishmeal.TurkishMealFragment
-import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 
 class ContinueFragment() : Fragment() {
     private lateinit var _binding: FragmentContinueBinding
     private val binding get() = _binding
-    private val baseViewModel: BaseViewModel by viewModels()
     var suras: Suras? = null
     var listOfSuras: List<Suras> = emptyList()
     var suraPosition: Int? = null
@@ -52,7 +53,13 @@ class ContinueFragment() : Fragment() {
         }
 
         binding.continuePreviousAyat.setOnClickListener {
+            if (!listOfSuras.isNullOrEmpty()) {
+                goPrevious()
+            }
+        }
 
+        binding.continueSuraExplanation.setOnClickListener {
+            showExplanationBox()
         }
 
         binding.continueBackPress.setOnClickListener {
@@ -64,9 +71,24 @@ class ContinueFragment() : Fragment() {
         binding.continueSuraName.text = suras?.suraName
         binding.continueTurkishAyat.text = suras?.ayets?.get(0)?.ayatText
         binding.continueArabicAyat.text =
-            listOfSuras[suraPosition!!].ayetsArabic.filter { it.ayatId == suras?.ayets?.get(0)?.ayatId }[ayatCounter].ayatText
+            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
         binding.continueCounterText.text =
             (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+    }
+
+    private fun showExplanationBox() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity)).inflate(R.layout.custom_sura_explanation_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val suraNameView = messageBoxView.findViewById<TextView>(R.id.dialog_sura_name)
+        val suraExplanationView = messageBoxView.findViewById<TextView>(R.id.dialog_sura_explanation)
+        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button)
+
+        suraNameView.text = Constants.suraNames[suraPosition!!]
+        suraExplanationView.text = listOfSuras[suraPosition!!].suraNote
+        val messageBoxInstance = messageBoxBuilder.show()
+        dialogCloseButton.setOnClickListener() {
+            messageBoxInstance.dismiss()
+        }
     }
 
     private fun languageChooser() {
@@ -105,20 +127,51 @@ class ContinueFragment() : Fragment() {
         setBothTurkishAndArabicText()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setTurkishTextOnly() {
-        binding.continueArabicAyat.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
-        binding.continueTopLanguage.text = "Türkçe"
+        if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
+            binding.continueArabicAyat.text =
+                listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
+
+            binding.continueTopLanguage.text = "Türkçe"
+        } else {
+            suraPosition = suraPosition!! + 1
+            ayatCounter = 0
+            binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
+
+            binding.continueCounterText.text =
+                (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+
+            binding.continueArabicAyat.text =
+                listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
+            binding.continueTopLanguage.text = "Türkçe"
+        }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setArabicTextOnly() {
-        binding.continueTopLanguage.text = "Arapça"
+        if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
+            if (listOfSuras[suraPosition!!].ayetsArabic.size > ayatCounter) {
+                binding.continueArabicAyat.text =
+                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+            }
 
-        binding.continueArabicAyat.text =
-            listOfSuras[suraPosition!!].ayetsArabic.filter {
-                it.ayatId == suras?.ayets?.get(
-                    ayatCounter
-                )?.ayatId
-            }[0].ayatText
+            binding.continueTopLanguage.text = "Arapça"
+        } else {
+            suraPosition = suraPosition!! + 1
+            ayatCounter = 0
+            binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
+
+            binding.continueCounterText.text =
+                (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+
+            if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
+                binding.continueArabicAyat.text =
+                    listOfSuras[suraPosition!!].ayetsArabic.filter { it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId }[0].ayatText
+            }
+
+            binding.continueTopLanguage.text = "Arapça"
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -127,11 +180,9 @@ class ContinueFragment() : Fragment() {
             binding.continueTurkishAyat.text =
                 listOfSuras[suraPosition!!].ayets.get(ayatCounter).ayatText
 
-            if (!listOfSuras[suraPosition!!].ayets.isNullOrEmpty()) {
+            if (listOfSuras[suraPosition!!].ayetsArabic.size > ayatCounter) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayetsArabic.filter {
-                        it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId || it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter + 1].ayatId
-                    }[0].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"
@@ -146,12 +197,29 @@ class ContinueFragment() : Fragment() {
 
             binding.continueTurkishAyat.text =
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
-
-            binding.continueArabicAyat.text =
-                listOfSuras[suraPosition!!].ayetsArabic?.filter { it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId }[0].ayatText
+            if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
+                binding.continueArabicAyat.text =
+                    listOfSuras[suraPosition!!].ayetsArabic.filter { it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId }[0].ayatText
+            }
 
             binding.continueTopLanguage.text = "Arapça"
             binding.continueBottomLanguage.text = "Türkçe"
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun goPrevious() {
+        if (!(suraPosition == 0 && ayatCounter == 0)) {
+            if (ayatCounter == 0) {
+                suraPosition = suraPosition!! - 1
+                ayatCounter = listOfSuras[suraPosition!!].ayets.size - 1
+            } else {
+                ayatCounter -= 1
+            }
+            binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
+            binding.continueCounterText.text =
+                (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+            languageChooser()
         }
     }
 }

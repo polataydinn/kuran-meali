@@ -344,6 +344,7 @@
             android:src="@drawable/ic_search_white" />
 
         <ImageView
+            android:id="@+id/continue_sura_explanation"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:layout_marginEnd="32dp"
