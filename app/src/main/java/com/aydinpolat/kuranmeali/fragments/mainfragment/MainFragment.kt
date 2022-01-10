@@ -5,17 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.aydinpolat.kuranmeali.R
+import com.aydinpolat.kuranmeali.activities.MainActivity
 import com.aydinpolat.kuranmeali.databinding.FragmentMainBinding
 import com.aydinpolat.kuranmeali.fragments.biography.BiographyFragment
 import com.aydinpolat.kuranmeali.fragments.continuefragment.ContinueFragment
 import com.aydinpolat.kuranmeali.fragments.myaccount.MyAccountFragment
 import com.aydinpolat.kuranmeali.fragments.searchword.SearchWordFragment
 import com.aydinpolat.kuranmeali.fragments.turkishmeal.TurkishMealFragment
+import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
+import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
     private lateinit var _binding: FragmentMainBinding
     private val binding get() = _binding
+    private val baseViewModel: BaseViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

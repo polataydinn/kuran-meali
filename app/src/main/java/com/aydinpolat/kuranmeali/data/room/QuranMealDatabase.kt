@@ -4,15 +4,16 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.aydinpolat.kuranmeali.data.models.Ayats
+import androidx.room.TypeConverters
+import com.aydinpolat.kuranmeali.data.models.Suras
 
-@Database(entities = [Ayats::class], version = 1, exportSchema = false)
+@Database(entities = [Suras::class], version = 1, exportSchema = false)
+@TypeConverters(com.aydinpolat.kuranmeali.data.room.TypeConverters::class)
 abstract class QuranMealDatabase: RoomDatabase()  {
 
     abstract fun quranMealDao(): QuranMealDao
 
     companion object {
-
         @Volatile
         private var INSTANCE: QuranMealDatabase? = null
 

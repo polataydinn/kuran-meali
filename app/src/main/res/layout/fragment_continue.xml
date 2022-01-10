@@ -75,6 +75,7 @@
         android:textStyle="bold" />
 
     <TextView
+        android:id="@+id/continue_top_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -86,7 +87,7 @@
         android:textStyle="bold" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/continue_text_size_button_top"
+        android:id="@+id/continue_top_text_size_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
@@ -112,7 +113,7 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <SeekBar
-        android:id="@+id/continue_text_seek_top"
+        android:id="@+id/continue_top_text_seek"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -129,6 +130,7 @@
         android:layout_marginEnd="32dp">
 
         <TextView
+            android:id="@+id/continue_arabic_ayat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ذٰلِكَ الْكِتَابُ لَا رَيْبَۚۛ ف۪يهِۚۛ هُدًى لِلْمُتَّق۪ينَۙ"
@@ -156,6 +158,7 @@
         android:src="@drawable/custom_radius_background_transparent_white" />
 
     <TextView
+        android:id="@+id/continue_bottom_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -167,7 +170,7 @@
         android:textStyle="bold" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/continue_text_size_button_bottom"
+        android:id="@+id/continue_bottom_text_size_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
@@ -193,7 +196,7 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <SeekBar
-        android:id="@+id/continue_text_seek_bottom"
+        android:id="@+id/continue_bottom_text_seek"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
@@ -202,6 +205,7 @@
         android:scrollbarThumbVertical="@color/white" />
 
     <ScrollView
+        android:id="@+id/continue_bottom_scroll"
         android:layout_width="wrap_content"
         android:layout_height="120dp"
         android:layout_gravity="start"
@@ -210,6 +214,7 @@
         android:layout_marginEnd="32dp">
 
         <TextView
+            android:id="@+id/continue_turkish_ayat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rahman ve Rahim olan Allah’ın adıyla"
