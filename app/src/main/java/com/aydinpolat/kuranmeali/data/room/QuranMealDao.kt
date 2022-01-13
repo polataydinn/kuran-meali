@@ -16,4 +16,6 @@ interface QuranMealDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     @JvmSuppressWildcards
     suspend fun insertSura(suras: Suras)
+
+
 }

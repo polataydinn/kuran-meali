@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="128dp"
-    android:layout_marginTop="128dp"
     android:layout_marginStart="24dp"
-    android:layout_marginEnd="24dp">
+    android:layout_marginTop="128dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginBottom="128dp">
 
 
     <FrameLayout
@@ -16,12 +17,11 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/dialog_sura_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
-            android:text="Fatiha Suresi"
+            android:text="İlgili Ayetler"
             android:textColor="@color/black"
             android:textSize="23sp"
             android:textStyle="bold" />
@@ -35,38 +35,32 @@
             android:background="@color/black" />
 
         <ImageView
-            android:id="@+id/dialog_close_button"
+            android:id="@+id/dialog_close_button_bkz"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="end"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_close_red" />
+
         <TextView
-            android:id="@+id/dialog_to_choose_sure_or_ayat_text"
+            android:id="@+id/dialog_to_show_how_many_ayat_found"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sure hakkında açıklama"
-            android:textColor="@color/black"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="55dp"/>
+            android:layout_marginTop="55dp"
+            android:text="Dinlediğiniz ayet ile ilgili 3 ayet bulundu."
+            android:textColor="@color/black" />
 
-        <ScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/dialog_bkz_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="85dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="90dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="16dp">
-            <TextView
-                android:id="@+id/dialog_sura_explanation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:text=""/>
-        </ScrollView>
-
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/custom_bkz_card" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

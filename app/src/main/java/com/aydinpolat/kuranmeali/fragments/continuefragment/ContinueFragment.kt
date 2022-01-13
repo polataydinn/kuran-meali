@@ -2,6 +2,7 @@ package com.aydinpolat.kuranmeali.fragments.continuefragment
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,14 +10,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.activities.MainActivity
 import com.aydinpolat.kuranmeali.constants.Constants
+import com.aydinpolat.kuranmeali.data.models.BkzAyat
 import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
+import com.aydinpolat.kuranmeali.fragments.continuefragment.adapter.BkzAdapter
 import com.aydinpolat.kuranmeali.fragments.turkishmeal.TurkishMealFragment
 
-class ContinueFragment() : Fragment() {
+class ContinueFragment : Fragment() {
     private lateinit var _binding: FragmentContinueBinding
     private val binding get() = _binding
     var suras: Suras? = null
@@ -24,6 +28,10 @@ class ContinueFragment() : Fragment() {
     var suraPosition: Int? = null
     private var toggleCounter = 0
     private var ayatCounter = 0
+    private var isAyatHasBkz: Boolean = false
+    private var listOfBkz: MutableList<BkzAyat> = mutableListOf()
+    private lateinit var adapter: BkzAdapter
+    private lateinit var messageBoxInstanceOfBkz: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +44,16 @@ class ContinueFragment() : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        adapter = BkzAdapter {
+            ayatCounter = it.ayatId
+            suraPosition = it.suraId
+            messageBoxInstanceOfBkz.dismiss()
+            binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
+            binding.continueCounterText.text =
+                (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+            languageChooser()
+        }
 
         binding.continueToggleButton.setOnClickListener {
             toggleCounter++
@@ -59,13 +77,27 @@ class ContinueFragment() : Fragment() {
         }
 
         binding.continueSuraExplanation.setOnClickListener {
-            showExplanationBox()
+            showSuraExplanationBox()
         }
 
         binding.continueBackPress.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, TurkishMealFragment())?.addToBackStack("")
                 ?.commit()
+        }
+
+        binding.continueAyatNote.setOnClickListener {
+            showAyatExplanationBox()
+        }
+
+        binding.continueTurkishAyat.setOnClickListener {
+            if (isAyatHasBkz) {
+                setListOfBkzAndShow()
+            }
+        }
+
+        binding.continueShareAyat.setOnClickListener {
+            startShareIntent(listOfSuras[suraPosition!!])
         }
 
         binding.continueSuraName.text = suras?.suraName
@@ -76,20 +108,26 @@ class ContinueFragment() : Fragment() {
             (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
     }
 
-    private fun showExplanationBox() {
-        val messageBoxView = LayoutInflater.from((activity as MainActivity)).inflate(R.layout.custom_sura_explanation_dialog, null)
+    private fun showSuraExplanationBox() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_sura_explanation_dialog, null)
         val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
         val suraNameView = messageBoxView.findViewById<TextView>(R.id.dialog_sura_name)
-        val suraExplanationView = messageBoxView.findViewById<TextView>(R.id.dialog_sura_explanation)
+        val suraExplanationView =
+            messageBoxView.findViewById<TextView>(R.id.dialog_sura_explanation)
+        val suraOrAyat =
+            messageBoxView.findViewById<TextView>(R.id.dialog_to_choose_sure_or_ayat_text)
         val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button)
 
         suraNameView.text = Constants.suraNames[suraPosition!!]
         suraExplanationView.text = listOfSuras[suraPosition!!].suraNote
+        suraOrAyat.text = "Sure Hakkında Açıklama"
         val messageBoxInstance = messageBoxBuilder.show()
-        dialogCloseButton.setOnClickListener() {
+        dialogCloseButton.setOnClickListener {
             messageBoxInstance.dismiss()
         }
     }
+
 
     private fun languageChooser() {
         when (toggleCounter) {
@@ -102,6 +140,78 @@ class ContinueFragment() : Fragment() {
             2 -> {
                 setOnlyArabic()
             }
+        }
+        checkForIfAyatHasNote()
+        checkForIfAyatHasBkz()
+    }
+
+    private fun checkForIfAyatHasNote() {
+        if (listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote == "") {
+            binding.continueAyatNote.visibility = View.INVISIBLE
+        } else {
+            binding.continueAyatNote.visibility = View.VISIBLE
+        }
+    }
+
+    private fun checkForIfAyatHasBkz() {
+        val ayat = listOfSuras[suraPosition!!].ayets[ayatCounter]
+        isAyatHasBkz = ayat.bkz != "" || ayat.ayatText.contains("Bkz")
+    }
+
+    private fun setListOfBkzAndShow() {
+        listOfBkz = mutableListOf()
+        listOfSuras[suraPosition!!].ayets[ayatCounter].bkz.split(" ").forEach {
+            if (it != "") {
+                listOfBkz.add(
+                    BkzAyat(
+                        it.substringBefore("/").toInt() - 1,
+                        it.substringAfter("/").toInt() - 1
+                    )
+                )
+            }
+        }
+
+        showBkzDialog()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showBkzDialog() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_bkz_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val ayatCountertext =
+            messageBoxView.findViewById<TextView>(R.id.dialog_to_show_how_many_ayat_found)
+        val recyclerView = messageBoxView.findViewById<RecyclerView>(R.id.dialog_bkz_recyclerView)
+        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_bkz)
+
+        ayatCountertext.text = "Dinlediğiniz ayetle ilgili " + listOfBkz.size + " ayet daha bulundu"
+        adapter.setList(listOfBkz)
+        recyclerView.adapter = adapter
+
+        messageBoxInstanceOfBkz = messageBoxBuilder.show()
+        dialogCloseButton.setOnClickListener {
+            messageBoxInstanceOfBkz.dismiss()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showAyatExplanationBox() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_sura_explanation_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val ayatNameView = messageBoxView.findViewById<TextView>(R.id.dialog_sura_name)
+        val ayatExplanationView =
+            messageBoxView.findViewById<TextView>(R.id.dialog_sura_explanation)
+        val suraOrAyat =
+            messageBoxView.findViewById<TextView>(R.id.dialog_to_choose_sure_or_ayat_text)
+        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button)
+
+        ayatNameView.text = Constants.suraNames[suraPosition!!] + (ayatCounter + 1) + " " + ". Ayet"
+        ayatExplanationView.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote
+        suraOrAyat.text = "Cemal Külünkoğlu'nun yorumu"
+        val messageBoxInstance = messageBoxBuilder.show()
+        dialogCloseButton.setOnClickListener {
+            messageBoxInstance.dismiss()
         }
     }
 
@@ -221,5 +331,18 @@ class ContinueFragment() : Fragment() {
                 (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
             languageChooser()
         }
+    }
+
+    private fun startShareIntent(sura: Suras) {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        val arabicAyat = sura.ayetsArabic[ayatCounter].ayatText
+        val turkishAyat = sura.ayets[ayatCounter].ayatText
+        val sharetext = "ARAPÇA\n" + sura.ayetsArabic[ayatCounter].ayatId + ". " + arabicAyat +
+                "\nTÜRKÇE MEALİ\n" + sura.ayetsArabic[ayatCounter].ayatId + ". " + turkishAyat +
+                "\n(" + sura.suraName + " " + sura.ayets[ayatCounter].ayatId + ". Ayet)" +
+                "\ncemalkulunkoglu.net"
+        intent.putExtra(Intent.EXTRA_TEXT, sharetext)
+        startActivity(Intent.createChooser(intent, "Ayeti Paylaş"))
     }
 }

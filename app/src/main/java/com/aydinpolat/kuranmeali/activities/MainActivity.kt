@@ -3,6 +3,7 @@ package com.aydinpolat.kuranmeali.activities
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.constants.Constants
@@ -27,10 +28,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        blockTheDarkMode()
 
         lifecycleScope.launch(Dispatchers.IO) {
             setAyetsToRoom()
         }
+    }
+
+    private fun blockTheDarkMode() {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     }
 
     private fun setAyetsToRoom() {
