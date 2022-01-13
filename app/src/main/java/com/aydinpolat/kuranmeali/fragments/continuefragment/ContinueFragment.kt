@@ -7,24 +7,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.activities.MainActivity
 import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.data.models.BkzAyat
 import com.aydinpolat.kuranmeali.data.models.Suras
+import com.aydinpolat.kuranmeali.data.models.UserNote
 import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
 import com.aydinpolat.kuranmeali.fragments.continuefragment.adapter.BkzAdapter
 import com.aydinpolat.kuranmeali.fragments.turkishmeal.TurkishMealFragment
+import com.aydinpolat.kuranmeali.util.observeOnce
+import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 
 class ContinueFragment : Fragment() {
     private lateinit var _binding: FragmentContinueBinding
     private val binding get() = _binding
     var suras: Suras? = null
     var listOfSuras: List<Suras> = emptyList()
+    val baseViewModel: BaseViewModel by viewModels()
     var suraPosition: Int? = null
     private var toggleCounter = 0
     private var ayatCounter = 0
@@ -49,9 +53,7 @@ class ContinueFragment : Fragment() {
             ayatCounter = it.ayatId
             suraPosition = it.suraId
             messageBoxInstanceOfBkz.dismiss()
-            binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
-            binding.continueCounterText.text =
-                (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+            setTopInformation()
             languageChooser()
         }
 
@@ -80,6 +82,14 @@ class ContinueFragment : Fragment() {
             showSuraExplanationBox()
         }
 
+        binding.continueSearchSuraAndAyat.setOnClickListener {
+            searchSuraAndAyat()
+        }
+
+        binding.continueAddNote.setOnClickListener {
+            addNoteToDatabase()
+        }
+
         binding.continueBackPress.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, TurkishMealFragment())?.addToBackStack("")
@@ -106,6 +116,103 @@ class ContinueFragment : Fragment() {
             listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
         binding.continueCounterText.text =
             (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+    }
+
+    private fun setTopInformation() {
+        binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
+        binding.continueCounterText.text =
+            (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+    }
+
+    private fun searchSuraAndAyat() {
+        showSearchDialog()
+    }
+
+    private fun showSearchDialog() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_search_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val searchSuraEditText =
+            messageBoxView.findViewById<EditText>(R.id.dialog_search_sura_edit_text)
+        val searchAyatEditText =
+            messageBoxView.findViewById<EditText>(R.id.dialog_search_ayat_edittext)
+        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_bkz)
+        val goAyatButton =
+            messageBoxView.findViewById<FrameLayout>(R.id.dialog_search_go_ayat_button)
+
+        val messageBoxInstance = messageBoxBuilder.show()
+
+
+        goAyatButton.setOnClickListener {
+            var suraName = searchSuraEditText.text.toString()
+            suraName = "%$suraName%"
+            var ayatId = searchAyatEditText.text.toString()
+            if (ayatId == ""){
+                Toast.makeText(
+                    requireContext(),
+                    "Lütfen Ayet Numarasını Giriniz",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }else if (!ayatId.contains(" ")){
+                baseViewModel.searchDatabase(suraName).observeOnce(viewLifecycleOwner){ searchResponse ->
+                    if (searchResponse.isNotEmpty()){
+                        suraPosition = searchResponse[0].suraId
+                        if (searchResponse[0].ayets.size > (ayatId.toInt() - 1) && ((ayatId.toInt() - 1)  >= 0) ){
+                            ayatCounter = ayatId.toInt() - 1
+                            languageChooser()
+                            setTopInformation()
+                            messageBoxInstance.dismiss()
+                        }else{
+                            Toast.makeText(requireContext(), "Ayet Bulunamadı", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }else{
+                        Toast.makeText(requireContext(), "Sure Bulunamadı", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            }else{
+                Toast.makeText(requireContext(), "Yanlış Karakter Girdiniz", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+
+        dialogCloseButton.setOnClickListener {
+            messageBoxInstanceOfBkz.dismiss()
+        }
+    }
+
+    private fun addNoteToDatabase() {
+        showNoteDialog()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showNoteDialog() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_add_note_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val suraNameView =
+            messageBoxView.findViewById<TextView>(R.id.dialog_add_note_sura_and_ayat_name)
+        val noteEditText = messageBoxView.findViewById<EditText>(R.id.dialog_add_note_edit_text)
+        val dialogCloseButton =
+            messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_add_note)
+        val dialogAddNoteButton =
+            messageBoxView.findViewById<FrameLayout>(R.id.dialog_add_note_button)
+
+        suraNameView.text =
+            Constants.suraNames[suraPosition!!] + " Suresi " + (ayatCounter + 1) + ". Ayet"
+        val messageBoxInstance = messageBoxBuilder.show()
+
+        dialogAddNoteButton.setOnClickListener {
+            val note = noteEditText.text
+            baseViewModel.insertNote(UserNote("", note.toString(), ayatCounter, suraPosition!!))
+            Toast.makeText(requireContext(), "Not Eklendi", Toast.LENGTH_SHORT).show()
+            messageBoxInstance.dismiss()
+        }
+
+        dialogCloseButton.setOnClickListener {
+            messageBoxInstance.dismiss()
+        }
     }
 
     private fun showSuraExplanationBox() {
