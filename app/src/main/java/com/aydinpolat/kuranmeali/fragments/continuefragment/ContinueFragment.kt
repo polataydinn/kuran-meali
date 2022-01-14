@@ -3,9 +3,9 @@ package com.aydinpolat.kuranmeali.fragments.continuefragment
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +25,10 @@ import com.aydinpolat.kuranmeali.fragments.turkishmeal.TurkishMealFragment
 import com.aydinpolat.kuranmeali.util.milliSecondsToTimer
 import com.aydinpolat.kuranmeali.util.observeOnce
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Player.Listener
 import com.google.firebase.storage.FirebaseStorage
 
 
@@ -42,7 +46,11 @@ class ContinueFragment : Fragment() {
     private lateinit var adapter: BkzAdapter
     private lateinit var messageBoxInstanceOfBkz: AlertDialog
     private val storage = FirebaseStorage.getInstance()
-    var mediaPlayer = MediaPlayer()
+    private lateinit var player: ExoPlayer
+    private lateinit var runnable: Runnable
+    val handler = Handler(Looper.getMainLooper())
+    var isAutoPlaying = true
+    var isStopped = false
 
 
     override fun onCreateView(
@@ -55,6 +63,7 @@ class ContinueFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        player = ExoPlayer.Builder((activity as MainActivity)).build()
         setFirstRunViews()
         setBkzAdapter()
         setButtonsClickListeners()
@@ -65,44 +74,56 @@ class ContinueFragment : Fragment() {
         val storageRef = storage.reference
         storageRef.child("${suraPosition}/${suraPosition}-${ayatCounter}.mp3").downloadUrl.addOnSuccessListener {
             try {
-                mediaPlayer.setDataSource(it.toString())
-                mediaPlayer.setOnPreparedListener { player ->
-                    player.start()
-                    binding.continueTotalLenght.text =
-                        mediaPlayer.milliSecondsToTimer(mediaPlayer.duration.toLong())
-                    initialiseSeekBar(mediaPlayer.duration)
-                }
-                mediaPlayer.setOnCompletionListener {
-                    mediaPlayer.reset()
-                    mediaPlayer.release()
-                    mediaPlayer = MediaPlayer()
-                    binding.continueChantCurrentProgress.progress = 0
-                }
-                mediaPlayer.prepareAsync()
-                binding.continueCurrentLenght.text =
-                    mediaPlayer.milliSecondsToTimer(mediaPlayer.currentPosition.toLong())
+                val mediaItem = MediaItem.Builder()
+                    .setUri(it)
+                    .build()
+                player.setMediaItem(mediaItem, 0)
+                player.prepare()
+                player.play()
+                playerSetListeners()
+                initializeCurrentState()
             } catch (e: Exception) {
             }
         }
     }
 
-    fun initialiseSeekBar(duration: Int) {
-        binding.continueChantCurrentProgress.max = duration
-        val handler = Handler()
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                try {
-                    if (mediaPlayer.isPlaying){
-                        binding.continueChantCurrentProgress.progress = mediaPlayer.currentPosition
-                        binding.continueCurrentLenght.text =
-                            mediaPlayer.milliSecondsToTimer((mediaPlayer.currentPosition).toLong())
-                        handler.postDelayed(this, 1000)
-                    }
-                } catch (e: Exception) {
-                    binding.continueChantCurrentProgress.progress = 0
+    private fun playerSetListeners() {
+        player.addListener(object : Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                if (!isPlaying) {
+                    handler.removeCallbacks(runnable)
+                } else {
+                    binding.continuePlayButton.setImageResource(R.drawable.ic_stop_white)
+                    binding.continueTotalLenght.text = player.milliSecondsToTimer(player.duration)
                 }
             }
-        }, 0)
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                if (playbackState == Player.STATE_ENDED){
+                    if (isAutoPlaying) {
+                        ayatCounter++
+                        languageChooser()
+                        setFirebase()
+                    }
+                }
+            }
+        })
+    }
+
+    fun initializeCurrentState() {
+        runnable = object : Runnable {
+            override fun run() {
+                binding.continueChantCurrentProgress.max = player.duration.toInt()
+                binding.continueCurrentLenght.text =
+                    player.milliSecondsToTimer(player.currentPosition)
+                binding.continueChantCurrentProgress.progress = player.currentPosition.toInt()
+                handler.postDelayed(this, 1000)
+            }
+
+        }
+        handler.postDelayed(runnable, 0)
     }
 
     private fun setSeekBarListeners() {
@@ -131,19 +152,6 @@ class ContinueFragment : Fragment() {
             override fun onStartTrackingTouch(p0: SeekBar?) {}
             override fun onStopTrackingTouch(p0: SeekBar?) {}
         })
-
-        binding.continueChantCurrentProgress.setOnSeekBarChangeListener(object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, progress: Int, p2: Boolean) {
-                if (mediaPlayer.isPlaying) {
-                    mediaPlayer.seekTo(progress)
-                }
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {}
-            override fun onStopTrackingTouch(p0: SeekBar?) {}
-
-        })
     }
 
     @SuppressLint("SetTextI18n")
@@ -167,8 +175,26 @@ class ContinueFragment : Fragment() {
     }
 
     private fun setButtonsClickListeners() {
+        binding.continueAutoPlayButton.setOnClickListener {
+            if (isAutoPlaying) {
+                binding.continueAutoPlayButton.setImageResource(R.drawable.ic_autoplay_stop_white)
+            } else {
+                binding.continueAutoPlayButton.setImageResource(R.drawable.ic_autoplay_white)
+            }
+            isAutoPlaying = !isAutoPlaying
+        }
+
         binding.continuePlayButton.setOnClickListener {
-            setFirebase()
+            if (player.isPlaying) {
+                player.pause()
+                binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
+            } else {
+                if (player.mediaItemCount >0){
+                    player.play()
+                }else{
+                    setFirebase()
+                }
+            }
         }
 
         binding.continueBottomTextSizeButton.setOnClickListener {
@@ -196,11 +222,23 @@ class ContinueFragment : Fragment() {
                 ayatCounter++
                 languageChooser()
             }
+            if (player.isPlaying) {
+                player.stop()
+                player.release()
+                player = ExoPlayer.Builder((activity as MainActivity)).build()
+                binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
+            }
         }
 
         binding.continuePreviousAyat.setOnClickListener {
             if (!listOfSuras.isNullOrEmpty()) {
                 goPrevious()
+            }
+            if (player.isPlaying) {
+                player.stop()
+                player.release()
+                player = ExoPlayer.Builder((activity as MainActivity)).build()
+                binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
             }
         }
 
@@ -220,6 +258,11 @@ class ContinueFragment : Fragment() {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, TurkishMealFragment())?.addToBackStack("")
                 ?.commit()
+            if(player.isPlaying){
+                player.stop()
+                player.release()
+                player = ExoPlayer.Builder((activity as MainActivity)).build()
+            }
         }
 
         binding.continueAyatNote.setOnClickListener {
@@ -256,7 +299,8 @@ class ContinueFragment : Fragment() {
             messageBoxView.findViewById<EditText>(R.id.dialog_search_sura_edit_text)
         val searchAyatEditText =
             messageBoxView.findViewById<EditText>(R.id.dialog_search_ayat_edittext)
-        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_bkz)
+        val dialogCloseButton =
+            messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_search)
         val goAyatButton =
             messageBoxView.findViewById<FrameLayout>(R.id.dialog_search_go_ayat_button)
 
@@ -298,7 +342,7 @@ class ContinueFragment : Fragment() {
         }
 
         dialogCloseButton.setOnClickListener {
-            messageBoxInstanceOfBkz.dismiss()
+            messageBoxInstance.dismiss()
         }
     }
 
@@ -357,7 +401,12 @@ class ContinueFragment : Fragment() {
     }
 
 
+    @SuppressLint("SetTextI18n")
     private fun languageChooser() {
+        binding.continueChantCurrentProgress.progress = 0
+        binding.continueCurrentLenght.text = "0:00"
+        binding.continueTotalLenght.text = "0:00"
+
         when (toggleCounter) {
             0 -> {
                 setBothTurkishAndArabic()
@@ -537,7 +586,7 @@ class ContinueFragment : Fragment() {
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
             if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayetsArabic.filter { it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId }[0].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"

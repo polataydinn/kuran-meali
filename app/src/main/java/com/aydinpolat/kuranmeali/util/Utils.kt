@@ -4,6 +4,7 @@ import android.media.MediaPlayer
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import com.google.android.exoplayer2.ExoPlayer
 
 fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>){
     observe(lifecycleOwner,object: Observer<T> {
@@ -14,13 +15,13 @@ fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observ
     })
 }
 
-fun MediaPlayer.milliSecondsToTimer(ms: Long): String {
+fun ExoPlayer.milliSecondsToTimer(ms: Long): String {
     var finalString = ""
     var secondString = ""
 
     val hours = (ms / (1000 * 60 * 60))
     val minutes = (ms % (1000 * 60 * 60)) / (1000 * 60)
-    val seconds = ((ms % (1000 * 60 * 60)) % (1000 * 60) / 1000)
+    val seconds = (((ms + 500) % (1000 * 60 * 60)) % (1000 * 60) / 1000)
 
     if (hours > 0) {
         secondString = "$hours"
