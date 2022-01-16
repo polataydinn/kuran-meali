@@ -18,4 +18,6 @@ class Repository(private val quranMealDao: QuranMealDao) {
     }
 
     fun searchDatabase(searchQuery: String) = quranMealDao.searchDatabase(searchQuery)
+
+    fun searchDatabaseForAyat(searchQuery: String) = quranMealDao.searchDatabaseForAyat(searchQuery)
 }

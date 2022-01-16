@@ -31,4 +31,6 @@ class BaseViewModel(application: Application): AndroidViewModel(application) {
     }
 
     fun searchDatabase(searchQuery: String) = repository.searchDatabase(searchQuery)
+
+    fun searchDatabaseForAyat(searchQuery: String) = repository.searchDatabaseForAyat(searchQuery)
 }

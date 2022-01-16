@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/main_bg"
-    tools:context=".fragments.searchword.SearchWordFragment">
+    android:background="@drawable/search_ayat_bg"
+    tools:context=".fragments.chooseayat.ChooseAyatFragment">
 
     <ImageView
-        android:id="@+id/search_back_press"
+        android:id="@+id/search_ayat_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -19,12 +19,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/search_listen_meal_text"
+        android:id="@+id/search_ayat_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/profile_button"
-        app:layout_constraintStart_toEndOf="@+id/search_back_press"
-        app:layout_constraintTop_toTopOf="@+id/search_back_press">
+        app:layout_constraintEnd_toStartOf="@+id/search_ayat_profile_button"
+        app:layout_constraintStart_toEndOf="@+id/search_ayat_back_press"
+        app:layout_constraintTop_toTopOf="@+id/search_ayat_back_press">
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/profile_button"
+        android:id="@+id/search_ayat_profile_button"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"
@@ -59,99 +59,91 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/search_word_cosnt"
+        android:id="@+id/choose_sura_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
-        android:text="KELİME ARA"
+        android:layout_marginTop="112dp"
+        android:text="1.FATİHA SURESİ"
         android:textColor="@color/white"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/search_ayat_listen_meal_text"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <FrameLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_listen_meal_text" />
-
-    <FrameLayout
-        android:id="@+id/search_et_parent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/search_word_cosnt">
-
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_search_black"
-            android:layout_marginStart="8dp"
-            android:elevation="2dp"
-            android:layout_gravity="center_vertical"/>
-
-        <AutoCompleteTextView
-            android:id="@+id/search_et"
-            android:layout_width="250dp"
-            android:layout_height="60dp"
-            android:paddingStart="50dp"
-            android:maxLines="1"
-            android:paddingEnd="8dp"
-            android:imeOptions="actionSearch"
-            android:completionThreshold="1"
-            android:background="@drawable/search_input"
-            tools:ignore="RtlSymmetry" />
-    </FrameLayout>
-
-    <RadioGroup
-        android:id="@+id/search_radio_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_et_parent">
-
-        <RadioButton
-            android:id="@+id/search_sura_radio_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sure ve ayet ara"
-            android:buttonTint="@color/white"
-            android:textColor="@color/white" />
-
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Kelime ara"
-            android:buttonTint="@color/white"
-            android:textColor="@color/white" />
-    </RadioGroup>
-
-    <FrameLayout
-        android:id="@+id/search_search_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_radio_group">
-
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/custom_radius_background_black" />
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:paddingBottom="2dp"
-            android:text="Ara"
-            android:textColor="@color/white"
-            android:textSize="28sp" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="150dp"
+            android:text="Ayet sırasını seçiniz"
+            android:textColor="@color/white" />
+
+        <EditText
+            android:id="@+id/choose_edit_text"
+            android:layout_width="220dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="180dp"
+            android:background="@drawable/custom_radius_background"
+            android:hint="Ayet ara..."
+            android:inputType="number"
+            android:paddingStart="16sp" />
+
+        <NumberPicker
+            android:id="@+id/choose_number_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="230dp"
+            android:theme="@style/AppTheme.Picker" />
 
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/choose_go_ayat_button"
+        android:layout_width="170dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/custom_radius_background_black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Ayete Git"
+            android:textColor="@color/white"
+            android:textSize="24sp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/owner_name_biography"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="16dp"
+        android:text="@string/cemal_name"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

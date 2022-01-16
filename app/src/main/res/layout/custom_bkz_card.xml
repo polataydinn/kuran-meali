@@ -14,13 +14,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="8dp"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textColor="@color/dark_blue"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <FrameLayout
         android:id="@+id/card_bkz_go_ayat"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:background="@drawable/custom_radius_background_black"
         android:layout_marginEnd="8dp"
@@ -32,6 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ayete Git"
+            android:layout_gravity="center"
             android:textColor="@color/white"
             android:padding="8dp"
             android:textSize="18sp"/>
