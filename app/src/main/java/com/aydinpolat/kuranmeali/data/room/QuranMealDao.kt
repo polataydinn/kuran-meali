@@ -27,7 +27,4 @@ interface QuranMealDao {
     @Query("SELECT * FROM sura_names WHERE suraName LIKE :searchQuery")
     fun searchDatabase(searchQuery: String): LiveData<List<Suras>>
 
-    @Query("SELECT ayets FROM sura_names WHERE ayets LIKE :searchQuery")
-    fun searchDatabaseForAyat(searchQuery: String): LiveData<List<Ayats>>
-    
 }

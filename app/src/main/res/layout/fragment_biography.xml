@@ -8,7 +8,7 @@
     tools:context=".fragments.biography.BiographyFragment">
 
     <ImageView
-        android:id="@+id/biography_back_press"
+        android:id="@+id/choose_list_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -22,9 +22,9 @@
         android:id="@+id/biography_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/biography_profile_button"
-        app:layout_constraintStart_toEndOf="@+id/biography_back_press"
-        app:layout_constraintTop_toTopOf="@+id/biography_back_press">
+        app:layout_constraintEnd_toStartOf="@+id/choose_list_profile"
+        app:layout_constraintStart_toEndOf="@+id/choose_list_back_press"
+        app:layout_constraintTop_toTopOf="@+id/choose_list_back_press">
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/biography_profile_button"
+        android:id="@+id/choose_list_profile"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"

@@ -7,12 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.activities.MainActivity
+import com.aydinpolat.kuranmeali.data.models.Ayats
+import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentSearchWordBinding
 import com.aydinpolat.kuranmeali.fragments.chooseayat.ChooseAyatFragment
+import com.aydinpolat.kuranmeali.fragments.chooselistayat.ChooseListAyatFragment
 import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 import com.aydinpolat.kuranmeali.fragments.myaccount.MyAccountFragment
 import com.aydinpolat.kuranmeali.util.observeOnce
@@ -24,6 +28,7 @@ class SearchWordFragment : Fragment() {
     private val baseViewModel: BaseViewModel by viewModels()
     private val listOfSuggestion: ArrayList<String> = arrayListOf()
     private lateinit var suggestionAdapter: ArrayAdapter<String>
+    var listOfSearchResponse = mutableListOf<Ayats>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,9 +73,33 @@ class SearchWordFragment : Fragment() {
 
     private fun searchWholeDatabase() {
         var searchGuess = binding.searchEt.text.toString()
-        searchGuess = "%$searchGuess%"
-        baseViewModel.searchDatabaseForAyat(searchGuess).observeOnce(viewLifecycleOwner){
-            println("breakpoint")
+        baseViewModel.getAllSuras?.observeOnce(viewLifecycleOwner){
+            if (!it.isNullOrEmpty()){
+                it.forEach {
+                    it.ayets.forEach { ayat ->
+                        if (ayat.ayatText.uppercase().contains(searchGuess.uppercase())){
+                            listOfSearchResponse.add(ayat)
+                        }
+                    }
+
+                }
+                if (!listOfSearchResponse.isNullOrEmpty()){
+                    val chooseListAyatFragment = ChooseListAyatFragment()
+                    chooseListAyatFragment.listOfAyats = listOfSearchResponse
+                    chooseListAyatFragment.searchedWord = searchGuess
+                    activity?.supportFragmentManager?.beginTransaction()
+                        ?.replace(R.id.main_container_view, chooseListAyatFragment)
+                        ?.addToBackStack("")
+                        ?.commit()
+                }else{
+                    Toast.makeText(
+                        requireContext(),
+                        "Aranana kelimeye ait sonuç bulunamadı",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            }
         }
     }
 
@@ -117,5 +146,10 @@ class SearchWordFragment : Fragment() {
 
             override fun afterTextChanged(p0: Editable?) {}
         })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        fragmentManager?.beginTransaction()?.remove(this)?.commitAllowingStateLoss()
     }
 }

@@ -8,7 +8,7 @@
     tools:context=".fragments.biography.BiographyFragment">
 
     <ImageView
-        android:id="@+id/biography_back_press"
+        android:id="@+id/choose_list_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -22,9 +22,9 @@
         android:id="@+id/biography_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/biography_profile_button"
-        app:layout_constraintStart_toEndOf="@+id/biography_back_press"
-        app:layout_constraintTop_toTopOf="@+id/biography_back_press">
+        app:layout_constraintEnd_toStartOf="@+id/choose_list_profile"
+        app:layout_constraintStart_toEndOf="@+id/choose_list_back_press"
+        app:layout_constraintTop_toTopOf="@+id/choose_list_back_press">
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/biography_profile_button"
+        android:id="@+id/choose_list_profile"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"
@@ -89,16 +89,8 @@
             android:layout_marginEnd="65dp"
             android:background="@color/black" />
 
-        <ImageView
-            android:id="@+id/biographt_close_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="end"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_close_red" />
-
         <TextView
+            android:id="@+id/choose_list_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -107,10 +99,11 @@
             android:textColor="@color/black" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/choose_list_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="85dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/custom_bkz_card"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp" />

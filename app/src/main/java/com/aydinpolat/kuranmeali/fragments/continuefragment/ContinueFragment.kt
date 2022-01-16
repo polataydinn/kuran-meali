@@ -2,6 +2,7 @@ package com.aydinpolat.kuranmeali.fragments.continuefragment
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -429,6 +430,16 @@ class ContinueFragment : Fragment() {
         }
         checkForIfAyatHasNote()
         checkForIfAyatHasBkz()
+        setLatestSuraAndAyat()
+    }
+
+    private fun setLatestSuraAndAyat() {
+        val sharedPreferences = (activity as MainActivity).getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.apply{
+            putInt("SuraId", suraPosition!!)
+            putInt("AyatId", ayatCounter)
+        }.apply()
     }
 
     private fun checkForIfAyatHasNote() {

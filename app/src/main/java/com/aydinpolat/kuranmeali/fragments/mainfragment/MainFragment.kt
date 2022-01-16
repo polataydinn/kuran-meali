@@ -1,5 +1,6 @@
 package com.aydinpolat.kuranmeali.fragments.mainfragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +21,6 @@ import kotlinx.coroutines.launch
 class MainFragment : Fragment() {
     private lateinit var _binding: FragmentMainBinding
     private val binding get() = _binding
-    private val baseViewModel: BaseViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,8 +49,15 @@ class MainFragment : Fragment() {
         }
 
         binding.continueMain.setOnClickListener {
+            val sharedPreferences = (activity as MainActivity).getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
+            val savedSuraId = sharedPreferences.getInt("SuraId", 0)
+            val savedAyatId = sharedPreferences.getInt("AyatId", 0)
+            val continueFragment = ContinueFragment()
+            continueFragment.suraPosition = savedSuraId
+            continueFragment.ayatCounter = savedAyatId
+
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.main_container_view, ContinueFragment())?.addToBackStack("")
+                ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
                 ?.commit()
         }
 

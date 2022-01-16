@@ -79,4 +79,7 @@ dependencies {
 
     //ExoPlayer
     implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+
+    //Shared Preferences
+    implementation "androidx.preference:preference:1.1.1"
 }

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.aydinpolat.kuranmeali.data.models.Ayats
 import com.aydinpolat.kuranmeali.databinding.CustomBkzCardBinding
 
-class ChooseListAyatAdapter(val onItemClickListener: (Int) -> Unit) : RecyclerView.Adapter<ChooseListAyatViewHolder>() {
+class ChooseListAyatAdapter(val onItemClickListener: (Int, Int) -> Unit) : RecyclerView.Adapter<ChooseListAyatViewHolder>() {
     var listOfAyats = emptyList<Ayats>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChooseListAyatViewHolder {
