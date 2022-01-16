@@ -1,6 +1,8 @@
 package com.aydinpolat.kuranmeali.fragments.chooseayat
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,6 +50,12 @@ class ChooseAyatFragment : Fragment() {
                     ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
                     ?.commit()
             }
+        }
+
+        binding.chooseAyatOwnerNameBiography.setOnClickListener {
+            val viewIntent = Intent("android.intent.action.VIEW",
+                Uri.parse("http://www.cemalkulunkoglu.net/"))
+            startActivity(viewIntent)
         }
     }
 }

@@ -8,7 +8,7 @@
     tools:context=".fragments.biography.BiographyFragment">
 
     <ImageView
-        android:id="@+id/choose_list_back_press"
+        android:id="@+id/biograpyh_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -22,9 +22,9 @@
         android:id="@+id/biography_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/choose_list_profile"
-        app:layout_constraintStart_toEndOf="@+id/choose_list_back_press"
-        app:layout_constraintTop_toTopOf="@+id/choose_list_back_press">
+        app:layout_constraintEnd_toStartOf="@+id/biograpy_profile"
+        app:layout_constraintStart_toEndOf="@+id/biograpyh_back_press"
+        app:layout_constraintTop_toTopOf="@+id/biograpyh_back_press">
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/choose_list_profile"
+        android:id="@+id/biograpy_profile"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"
@@ -66,7 +66,7 @@
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="36dp"
         android:background="@drawable/custom_biography_bg"
-        app:layout_constraintBottom_toTopOf="@+id/owner_name_biography"
+        app:layout_constraintBottom_toTopOf="@+id/biography_owner_name_biography"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/biography_listen_meal_text">
@@ -89,14 +89,6 @@
             android:layout_marginEnd="65dp"
             android:background="@color/black" />
 
-        <ImageView
-            android:id="@+id/biographt_close_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="end"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_close_red" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -113,6 +105,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp">
             <TextView
+                android:id="@+id/biography_cemal_kulunkoglu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text=""/>
@@ -121,7 +114,7 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/owner_name_biography"
+        android:id="@+id/biography_owner_name_biography"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"

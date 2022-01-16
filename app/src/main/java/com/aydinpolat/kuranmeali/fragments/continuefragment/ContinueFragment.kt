@@ -22,7 +22,7 @@ import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.data.models.UserNote
 import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
 import com.aydinpolat.kuranmeali.fragments.continuefragment.adapter.BkzAdapter
-import com.aydinpolat.kuranmeali.fragments.turkishmeal.TurkishMealFragment
+import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 import com.aydinpolat.kuranmeali.util.milliSecondsToTimer
 import com.aydinpolat.kuranmeali.util.observeOnce
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
@@ -263,7 +263,7 @@ class ContinueFragment : Fragment() {
 
         binding.continueBackPress.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
-                ?.replace(R.id.main_container_view, TurkishMealFragment())?.addToBackStack("")
+                ?.replace(R.id.main_container_view, MainFragment())?.addToBackStack("")
                 ?.commit()
             if(player.isPlaying){
                 player.stop()
@@ -375,8 +375,10 @@ class ContinueFragment : Fragment() {
         val messageBoxInstance = messageBoxBuilder.show()
 
         dialogAddNoteButton.setOnClickListener {
+            val sharedPreferences = (activity as MainActivity).getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
+            val getSelectedUser = sharedPreferences.getString("userMail", "creatikbilisim.com")
             val note = noteEditText.text
-            baseViewModel.insertNote(UserNote("", note.toString(), ayatCounter, suraPosition!!))
+            baseViewModel.insertNote(UserNote(getSelectedUser!!, note.toString(), ayatCounter, suraPosition!!))
             Toast.makeText(requireContext(), "Not Eklendi", Toast.LENGTH_SHORT).show()
             messageBoxInstance.dismiss()
         }
@@ -462,7 +464,8 @@ class ContinueFragment : Fragment() {
                 listOfBkz.add(
                     BkzAyat(
                         it.substringBefore("/").toInt() - 1,
-                        it.substringAfter("/").toInt() - 1
+                        it.substringAfter("/").toInt() - 1,
+                        false
                     )
                 )
             }

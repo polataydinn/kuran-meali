@@ -6,9 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.aydinpolat.kuranmeali.data.models.Suras
+import com.aydinpolat.kuranmeali.data.models.UserMail
 import com.aydinpolat.kuranmeali.data.models.UserNote
 
-@Database(entities = [Suras::class, UserNote::class], version = 1, exportSchema = false)
+@Database(entities = [Suras::class, UserNote::class, UserMail::class], version = 1, exportSchema = false)
 @TypeConverters(com.aydinpolat.kuranmeali.data.room.TypeConverters::class)
 abstract class QuranMealDatabase: RoomDatabase()  {
 

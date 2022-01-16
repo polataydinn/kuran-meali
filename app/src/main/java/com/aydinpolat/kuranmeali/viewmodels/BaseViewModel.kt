@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.aydinpolat.kuranmeali.data.models.Suras
+import com.aydinpolat.kuranmeali.data.models.UserMail
 import com.aydinpolat.kuranmeali.data.models.UserNote
 import com.aydinpolat.kuranmeali.data.repository.Repository
 import com.aydinpolat.kuranmeali.data.room.QuranMealDatabase
@@ -17,6 +18,7 @@ class BaseViewModel(application: Application): AndroidViewModel(application) {
     val repository = Repository(quranMealDao)
     val getAllSuras = repository.getAllSuras
     val getAllNote = repository.getAllNote
+    val getAllUserMails = repository.getAllUserMails
 
     fun insertSura(suras: Suras){
         viewModelScope.launch(Dispatchers.IO) {
@@ -27,6 +29,12 @@ class BaseViewModel(application: Application): AndroidViewModel(application) {
     fun insertNote(userNote: UserNote){
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertNote(userNote)
+        }
+    }
+
+    fun insertUserMail(userMail: UserMail){
+        viewModelScope.launch {
+            repository.insertUserMail(userMail)
         }
     }
 

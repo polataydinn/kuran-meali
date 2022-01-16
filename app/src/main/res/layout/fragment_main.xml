@@ -182,7 +182,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/owner_name_main"
+        android:id="@+id/main_owner_name_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"

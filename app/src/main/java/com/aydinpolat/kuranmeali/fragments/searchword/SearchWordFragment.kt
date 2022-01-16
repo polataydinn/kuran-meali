@@ -13,7 +13,6 @@ import androidx.fragment.app.viewModels
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.activities.MainActivity
 import com.aydinpolat.kuranmeali.data.models.Ayats
-import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentSearchWordBinding
 import com.aydinpolat.kuranmeali.fragments.chooseayat.ChooseAyatFragment
 import com.aydinpolat.kuranmeali.fragments.chooselistayat.ChooseListAyatFragment

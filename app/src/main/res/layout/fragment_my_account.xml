@@ -7,7 +7,7 @@
     tools:context=".fragments.myaccount.MyAccountFragment">
 
     <ImageView
-        android:id="@+id/continue_back_press"
+        android:id="@+id/my_account_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -102,6 +102,7 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/my_account_mail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -134,13 +135,13 @@
             android:textColor="@color/white"
             android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="creatikbilisim.com"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
+        <Spinner
+            android:id="@+id/my_account_mail_chooser_spinner"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:theme="@style/spinnerTheme"
+            />
+
     </LinearLayout>
 
     <ImageView
@@ -167,13 +168,20 @@
             android:textColor="@color/white"
             android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Listeyi Göster"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
+        <FrameLayout
+            android:id="@+id/my_account_show_list_button"
+            android:layout_width="96dp"
+            android:layout_height="30dp"
+            android:background="@drawable/custom_radius_background_black">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Listeyi Göster"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+        </FrameLayout>
+
     </LinearLayout>
 
     <ImageView
@@ -185,6 +193,7 @@
         android:background="@color/white" />
 
     <FrameLayout
+        android:id="@+id/create_new_account"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginStart="36dp"
@@ -201,7 +210,7 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/owner_name_main"
+        android:id="@+id/my_accounts_owner_name_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"

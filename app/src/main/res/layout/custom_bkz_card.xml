@@ -29,6 +29,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/bkz_card_go_ayat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ayete Git"

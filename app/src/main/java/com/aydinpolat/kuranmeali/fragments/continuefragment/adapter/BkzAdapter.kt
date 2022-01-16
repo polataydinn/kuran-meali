@@ -2,7 +2,6 @@ package com.aydinpolat.kuranmeali.fragments.continuefragment.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.AdapterView
 import androidx.recyclerview.widget.RecyclerView
 import com.aydinpolat.kuranmeali.data.models.BkzAyat
 import com.aydinpolat.kuranmeali.databinding.CustomBkzCardBinding

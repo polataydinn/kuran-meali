@@ -9,6 +9,7 @@ import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.data.models.Ayats
 import com.aydinpolat.kuranmeali.data.models.Suras
+import com.aydinpolat.kuranmeali.data.models.UserMail
 import com.aydinpolat.kuranmeali.databinding.ActivityMainBinding
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 import kotlinx.coroutines.Dispatchers
@@ -29,8 +30,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         blockTheDarkMode()
+        setUserEmailIfEmpty()
         lifecycleScope.launch(Dispatchers.IO) {
             setAyetsToRoom()
+        }
+    }
+
+    private fun setUserEmailIfEmpty() {
+        baseViewModel.getAllUserMails.observe(this){
+            if (it.isNullOrEmpty()){
+                baseViewModel.insertUserMail(UserMail("creatikbilisim.com"))
+            }
         }
     }
 

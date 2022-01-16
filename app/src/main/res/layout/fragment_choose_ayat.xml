@@ -134,7 +134,7 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/owner_name_biography"
+        android:id="@+id/choose_ayat_owner_name_biography"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
