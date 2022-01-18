@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -42,6 +44,7 @@ class ContinueFragment : Fragment() {
     var suraPosition: Int? = null
     private var toggleCounter = 0
     var ayatCounter = 0
+    private lateinit var bkzAdapter: BkzAdapter
     private var isAyatHasBkz: Boolean = false
     private var listOfBkz: MutableList<BkzAyat> = mutableListOf()
     private lateinit var adapter: BkzAdapter
@@ -51,7 +54,6 @@ class ContinueFragment : Fragment() {
     private lateinit var runnable: Runnable
     val handler = Handler(Looper.getMainLooper())
     var isAutoPlaying = true
-    var isStopped = false
 
 
     override fun onCreateView(
@@ -158,14 +160,17 @@ class ContinueFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setFirstRunViews() {
         baseViewModel.getAllSuras?.observeOnce(viewLifecycleOwner){
-            if (!it.isNullOrEmpty()){
+            if (!it.isNullOrEmpty()) {
                 listOfSuras = it
                 binding.continueSuraName.text = listOfSuras[suraPosition!!].suraName
-                binding.continueTurkishAyat.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
+                binding.continueTurkishAyat.text =
+                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
                 binding.continueArabicAyat.text =
                     listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
                 binding.continueCounterText.text =
                     (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
+                checkForIfAyatHasNote()
+                checkForIfAyatHasBkz()
             }
         }
 
@@ -182,6 +187,11 @@ class ContinueFragment : Fragment() {
     }
 
     private fun setButtonsClickListeners() {
+
+        binding.continueBkzButton.setOnClickListener {
+            setListOfBkzAndShow()
+        }
+
         binding.continueAutoPlayButton.setOnClickListener {
             if (isAutoPlaying) {
                 binding.continueAutoPlayButton.setImageResource(R.drawable.ic_autoplay_stop_white)
@@ -312,7 +322,7 @@ class ContinueFragment : Fragment() {
             messageBoxView.findViewById<FrameLayout>(R.id.dialog_search_go_ayat_button)
 
         val messageBoxInstance = messageBoxBuilder.show()
-
+        messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         goAyatButton.setOnClickListener {
             var suraName = searchSuraEditText.text.toString()
@@ -354,7 +364,88 @@ class ContinueFragment : Fragment() {
     }
 
     private fun addNoteToDatabase() {
-        showNoteDialog()
+        showListOfNoteDialog()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showListOfNoteDialog() {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_bkz_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val customTitle = messageBoxView.findViewById<TextView>(R.id.title_of_custom_bkz)
+        val customDescription =
+            messageBoxView.findViewById<TextView>(R.id.dialog_to_show_how_many_ayat_found)
+        val recyclerView = messageBoxView.findViewById<RecyclerView>(R.id.dialog_bkz_recyclerView)
+        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_bkz)
+        val addNoteButton = messageBoxView.findViewById<ImageView>(R.id.dialog_bkz_add_note)
+        val listOfBkz = mutableListOf<BkzAyat>()
+        val sharedPreferences = (activity as MainActivity).getSharedPreferences(
+            "sharedPref",
+            Context.MODE_PRIVATE
+        )
+        val getSelectedUser =
+            sharedPreferences.getString("userMail", "creatikbilisim.com")
+
+        addNoteButton.visibility = View.VISIBLE
+
+        bkzAdapter = BkzAdapter {
+            showSelectedUserNote(it, getSelectedUser)
+        }
+        baseViewModel.getAllNote?.observe(viewLifecycleOwner) {
+            if (!it.isNullOrEmpty()) {
+                listOfBkz.clear()
+                val temptList = it.filter { user ->
+                    user.userMail == getSelectedUser
+                }
+                temptList.forEach { userNote ->
+                    listOfBkz.add(BkzAyat(userNote.suraId, userNote.ayatId, true))
+                }
+                customTitle.text = "Notlarım"
+                customDescription.text = temptList.size.toString() + " ayet için not oluşturdunuz"
+                bkzAdapter.setList(listOfBkz)
+                recyclerView.adapter = bkzAdapter
+            }
+        }
+
+        addNoteButton.setOnClickListener {
+            showNoteDialog()
+        }
+
+        val messageBoxInstance = messageBoxBuilder.show()
+        messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialogCloseButton.setOnClickListener {
+            messageBoxInstance.dismiss()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showSelectedUserNote(bkzAyat: BkzAyat, getSelectedUser: String?) {
+        val messageBoxView = LayoutInflater.from((activity as MainActivity))
+            .inflate(R.layout.custom_sura_explanation_dialog, null)
+        val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
+        val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button)
+        val dialogTitle = messageBoxView.findViewById<TextView>(R.id.dialog_sura_name)
+        val dialogDescription =
+            messageBoxView.findViewById<TextView>(R.id.dialog_to_choose_sure_or_ayat_text)
+        val dialogNote = messageBoxView.findViewById<TextView>(R.id.dialog_sura_explanation)
+        dialogTitle.text = Constants.suraNames[bkzAyat.suraId] + " Suresi"
+        dialogDescription.text = (bkzAyat.ayatId + 1).toString() + ". Ayet"
+
+        baseViewModel.getAllNote?.observeOnce(viewLifecycleOwner) {
+            if (!it.isNullOrEmpty()) {
+                val selectedNote = it.filter { user ->
+                    user.userMail == getSelectedUser && user.ayatId == bkzAyat.ayatId && user.suraId == bkzAyat.suraId
+                }
+
+                dialogNote.text = selectedNote[0].userNote
+            }
+        }
+
+        val messageBoxInstance = messageBoxBuilder.show()
+        messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialogCloseButton.setOnClickListener {
+            messageBoxInstance.dismiss()
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -373,6 +464,7 @@ class ContinueFragment : Fragment() {
         suraNameView.text =
             Constants.suraNames[suraPosition!!] + " Suresi " + (ayatCounter + 1) + ". Ayet"
         val messageBoxInstance = messageBoxBuilder.show()
+        messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         dialogAddNoteButton.setOnClickListener {
             val sharedPreferences = (activity as MainActivity).getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
@@ -407,7 +499,12 @@ class ContinueFragment : Fragment() {
         suraExplanationView.text = listOfSuras[suraPosition!!].suraNote
         suraOrAyat.text = "Sure Hakkında Açıklama"
         val messageBoxInstance = messageBoxBuilder.show()
+        messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialogCloseButton.setOnClickListener {
+            player.stop()
+            player.release()
+            player = ExoPlayer.Builder((activity as MainActivity)).build()
+            binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
             messageBoxInstance.dismiss()
         }
     }
@@ -455,6 +552,12 @@ class ContinueFragment : Fragment() {
     private fun checkForIfAyatHasBkz() {
         val ayat = listOfSuras[suraPosition!!].ayets[ayatCounter]
         isAyatHasBkz = ayat.bkz != "" || ayat.ayatText.contains("Bkz")
+
+        if (isAyatHasBkz) {
+            binding.continueBkzButton.visibility = View.VISIBLE
+        } else {
+            binding.continueBkzButton.visibility = View.INVISIBLE
+        }
     }
 
     private fun setListOfBkzAndShow() {
@@ -482,13 +585,16 @@ class ContinueFragment : Fragment() {
         val ayatCountertext =
             messageBoxView.findViewById<TextView>(R.id.dialog_to_show_how_many_ayat_found)
         val recyclerView = messageBoxView.findViewById<RecyclerView>(R.id.dialog_bkz_recyclerView)
+        val dialogAddNote = messageBoxView.findViewById<ImageView>(R.id.dialog_bkz_add_note)
         val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_bkz)
 
         ayatCountertext.text = "Dinlediğiniz ayetle ilgili " + listOfBkz.size + " ayet daha bulundu"
         adapter.setList(listOfBkz)
         recyclerView.adapter = adapter
-
+        dialogAddNote.visibility = View.INVISIBLE
         messageBoxInstanceOfBkz = messageBoxBuilder.show()
+        messageBoxInstanceOfBkz.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
         dialogCloseButton.setOnClickListener {
             messageBoxInstanceOfBkz.dismiss()
         }
@@ -512,11 +618,13 @@ class ContinueFragment : Fragment() {
         ayatExplanationView.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote
         suraOrAyat.text = "Cemal Külünkoğlu'nun yorumu"
         val messageBoxInstance = messageBoxBuilder.show()
+        messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialogCloseButton.setOnClickListener {
             messageBoxInstance.dismiss()
             player.stop()
             player.release()
             player = ExoPlayer.Builder((activity as MainActivity)).build()
+            binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
         }
     }
 

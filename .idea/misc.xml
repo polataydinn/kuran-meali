@@ -11,9 +11,12 @@
         <entry key="app/src/main/res/drawable/custom_radius_background_black.xml" value="0.2953703703703704" />
         <entry key="app/src/main/res/drawable/custom_radius_background_grey.xml" value="0.39794871794871794" />
         <entry key="app/src/main/res/drawable/custom_radius_background_transparent_white.xml" value="0.4041666666666667" />
+        <entry key="app/src/main/res/drawable/my_ripple.xml" value="0.39444444444444443" />
+        <entry key="app/src/main/res/drawable/round_corners.xml" value="0.39444444444444443" />
         <entry key="app/src/main/res/drawable/transparent_foreground_black.xml" value="0.3260416666666667" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_splash.xml" value="0.3880208333333333" />
+        <entry key="app/src/main/res/layout/custom_add_new_user_dialog.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout/custom_add_note_dialog.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout/custom_bkz_card.xml" value="0.335" />
         <entry key="app/src/main/res/layout/custom_bkz_dialog.xml" value="0.335" />
@@ -30,6 +33,7 @@
         <entry key="app/src/main/res/layout/fragment_new_account.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout/fragment_search_word.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/fragment_turkish_meal.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/menu/menu_accounts.xml" value="0.3880208333333333" />
       </map>
     </option>
   </component>

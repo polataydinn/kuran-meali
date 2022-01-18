@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:layout_marginStart="24dp"
     android:layout_marginEnd="24dp"
-    android:paddingBottom="24dp">
+    android:paddingBottom="24dp"
+    android:background="@drawable/custom_biography_bg">
 
 
     <FrameLayout
@@ -40,6 +41,9 @@
             android:layout_height="32dp"
             android:layout_gravity="end"
             android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="@drawable/my_ripple"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_close_red" />
         <TextView

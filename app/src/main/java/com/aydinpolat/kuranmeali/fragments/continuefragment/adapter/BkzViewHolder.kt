@@ -12,6 +12,7 @@ class BkzViewHolder(val binding: CustomBkzCardBinding) : RecyclerView.ViewHolder
     fun bind(bkzAyat: BkzAyat, onClickListener: (BkzAyat) -> Unit) {
         if (bkzAyat.isNoteorBkz){
             binding.bkzCardGoAyatText.text = "Nota Git"
+
         }
         binding.cardBkzAyatName.text =
             Constants.suraNames[bkzAyat.suraId] + " Suresi " + (bkzAyat.ayatId + 1) + ". ayet"

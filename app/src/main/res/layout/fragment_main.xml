@@ -23,6 +23,9 @@
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
         android:src="@drawable/ic_menu"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
@@ -127,6 +130,9 @@
         android:layout_height="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
         android:src="@drawable/ic_user"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -149,14 +155,20 @@
 
             <ImageView
                 android:id="@+id/my_account_main"
-                android:layout_width="126dp"
-                android:layout_height="126dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/my_ripple"
                 android:src="@drawable/hesabim" />
 
             <ImageView
                 android:id="@+id/turkish_meal_main"
-                android:layout_width="126dp"
-                android:layout_height="126dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/my_ripple"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/turkce_meal" />
         </LinearLayout>
@@ -168,14 +180,20 @@
 
             <ImageView
                 android:id="@+id/search_word_main"
-                android:layout_width="126dp"
-                android:layout_height="126dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/my_ripple"
                 android:src="@drawable/kelime_ara" />
 
             <ImageView
                 android:id="@+id/continue_main"
-                android:layout_width="126dp"
-                android:layout_height="126dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/my_ripple"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/devam_et" />
         </LinearLayout>
@@ -189,6 +207,9 @@
         android:layout_marginBottom="16dp"
         android:text="@string/cemal_name"
         android:textColor="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

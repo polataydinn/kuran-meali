@@ -28,7 +28,6 @@ class BiographyFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.biographyCemalKulunkoglu.text = getString(R.string.cemal_kulunkoglu_biography)
-        binding.biographyCemalKulunkoglu.textSize = 14f
 
         binding.biograpyhBackPress.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
@@ -46,6 +45,12 @@ class BiographyFragment : Fragment() {
             val viewIntent = Intent("android.intent.action.VIEW",
                 Uri.parse("http://www.cemalkulunkoglu.net/"))
             startActivity(viewIntent)
+        }
+
+        binding.biographyCloseButton.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.main_container_view, MainFragment())?.addToBackStack("")
+                ?.commit()
         }
     }
 }

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:layout_marginStart="24dp"
     android:layout_marginEnd="24dp"
-    android:paddingBottom="24dp">
+    android:paddingBottom="24dp"
+    android:background="@drawable/custom_biography_bg">
 
 
     <FrameLayout
@@ -39,9 +40,24 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="end"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_close_red" />
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="@drawable/my_ripple"
+            android:src="@drawable/ic_close_red"
+            />
+
+        <ImageView
+            android:id="@+id/dialog_bkz_add_note"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:visibility="invisible"
+            android:src="@drawable/ic_add_note_black"
+            android:layout_gravity="end"
+            android:layout_marginTop="42dp"
+            android:layout_marginEnd="6dp"/>
+
 
         <TextView
             android:id="@+id/dialog_to_show_how_many_ayat_found"

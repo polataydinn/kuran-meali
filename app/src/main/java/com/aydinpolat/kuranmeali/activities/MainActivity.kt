@@ -1,6 +1,7 @@
 package com.aydinpolat.kuranmeali.activities
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContentView(binding.root)
         blockTheDarkMode()
         setUserEmailIfEmpty()
@@ -39,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     private fun setUserEmailIfEmpty() {
         baseViewModel.getAllUserMails.observe(this){
             if (it.isNullOrEmpty()){
-                baseViewModel.insertUserMail(UserMail("creatikbilisim.com"))
+                baseViewModel.insertUserMail(UserMail("creatikbilisim.com","creatik", "bilisim"))
             }
         }
     }

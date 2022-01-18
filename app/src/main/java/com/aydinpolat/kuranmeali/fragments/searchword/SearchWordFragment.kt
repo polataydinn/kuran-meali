@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -28,6 +29,8 @@ class SearchWordFragment : Fragment() {
     private val listOfSuggestion: ArrayList<String> = arrayListOf()
     private lateinit var suggestionAdapter: ArrayAdapter<String>
     var listOfSearchResponse = mutableListOf<Ayats>()
+    var isSuggessEditTextClicked: Boolean = true
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +43,7 @@ class SearchWordFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.searchSuraRadioButton.isChecked = true
+
         binding.searchBackPress.setOnClickListener {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, MainFragment())?.addToBackStack("")
@@ -59,11 +63,14 @@ class SearchWordFragment : Fragment() {
     private fun setSuraForwardFragment() {
         binding.searchSearchButton.setOnClickListener {
             when (binding.searchRadioGroup.checkedRadioButtonId) {
-                0 -> {
+                R.id.search_sura_radio_button -> {
                     searchSura()
+                    isSuggessEditTextClicked = true
                 }
-                1 -> {
+                R.id.search_ayat_radio_button -> {
                     searchWholeDatabase()
+                    listOfSearchResponse.clear()
+                    isSuggessEditTextClicked = false
                 }
             }
 
@@ -124,23 +131,26 @@ class SearchWordFragment : Fragment() {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                var suraName = binding.searchEt.text.toString()
-                suraName = "%$suraName%"
-                baseViewModel.searchDatabase(suraName)
-                    .observeOnce(viewLifecycleOwner) { searchResponse ->
-                        if (searchResponse.isNotEmpty()) {
-                            listOfSuggestion.clear()
-                            searchResponse.forEach {
-                                listOfSuggestion.add(it.suraName)
+                if (isSuggessEditTextClicked) {
+                    var suraName = binding.searchEt.text.toString()
+                    suraName = "%$suraName%"
+                    baseViewModel.searchDatabase(suraName)
+                        .observeOnce(viewLifecycleOwner) { searchResponse ->
+                            if (searchResponse.isNotEmpty()) {
+                                listOfSuggestion.clear()
+                                searchResponse.forEach {
+                                    listOfSuggestion.add(it.suraName)
+                                }
+                                suggestionAdapter = ArrayAdapter<String>(
+                                    (activity as MainActivity),
+                                    android.R.layout.simple_list_item_1,
+                                    listOfSuggestion
+                                )
+                                binding.searchEt.setAdapter(suggestionAdapter)
                             }
-                            suggestionAdapter = ArrayAdapter<String>(
-                                (activity as MainActivity),
-                                android.R.layout.simple_list_item_1,
-                                listOfSuggestion
-                            )
-                            binding.searchEt.setAdapter(suggestionAdapter)
                         }
-                    }
+                }
+
             }
 
             override fun afterTextChanged(p0: Editable?) {}

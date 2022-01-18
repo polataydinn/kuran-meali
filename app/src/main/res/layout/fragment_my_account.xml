@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,16 +11,24 @@
         android:id="@+id/my_account_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="16dp"
+        android:clickable="true"
         android:layout_marginTop="8dp"
-        android:src="@drawable/ic_back_white" />
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
+        android:src="@drawable/ic_back_white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/my_account_change_user_button" />
 
     <LinearLayout
         android:id="@+id/continue_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp">
+        app:layout_constraintEnd_toStartOf="@+id/my_account_change_user_button"
+        app:layout_constraintStart_toEndOf="@+id/my_account_back_press"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -43,180 +52,136 @@
             tools:ignore="RtlSymmetry" />
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/my_account_change_user_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
+        android:src="@drawable/ic_change_user"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="94dp"
         android:text="@string/account_information"
         android:textColor="@color/white"
-        android:textSize="24sp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="150dp"
-        android:layout_marginEnd="36dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_weight="1"
-            android:text="Ad"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Yok"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="180dp"
-        android:layout_marginEnd="36dp"
-        android:background="@color/white" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="200dp"
-        android:layout_marginEnd="36dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_weight="1"
-            android:text="Mail"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/my_account_mail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="creatikbilisim.com"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="230dp"
-        android:layout_marginEnd="36dp"
-        android:background="@color/white" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="250dp"
-        android:layout_marginEnd="36dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_weight="1"
-            android:text="Kullanılan Hesaplar"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-        <Spinner
-            android:id="@+id/my_account_mail_chooser_spinner"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:theme="@style/spinnerTheme"
-            />
-
-    </LinearLayout>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="280dp"
-        android:layout_marginEnd="36dp"
-        android:background="@color/white" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="300dp"
-        android:layout_marginEnd="36dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_weight="1"
-            android:text="Notlarım"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-        <FrameLayout
-            android:id="@+id/my_account_show_list_button"
-            android:layout_width="96dp"
-            android:layout_height="30dp"
-            android:background="@drawable/custom_radius_background_black">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Listeyi Göster"
-                android:textColor="@color/white"
-                android:textSize="12sp" />
-        </FrameLayout>
-
-    </LinearLayout>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="330dp"
-        android:layout_marginEnd="36dp"
-        android:background="@color/white" />
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <FrameLayout
-        android:id="@+id/create_new_account"
+        android:id="@+id/frameLayout2"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginEnd="36dp"
-        android:background="@color/green"
-        android:layout_marginTop="380dp">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/custom_biography_bg"
+        app:layout_constraintBottom_toTopOf="@+id/my_account_add_new_user"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hesap Oluştur"
-            android:textSize="18sp"
-            android:textColor="@color/white"
-            android:layout_gravity="center"/>
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="14dp"
+            android:text="Ad"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/my_account_name_et"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="52dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/custom_radius_background_grey"
+            android:paddingStart="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="98dp"
+            android:text="Soyad"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/my_account_surname_et"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="138dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/custom_radius_background_grey"
+            android:paddingStart="8dp" />
+
     </FrameLayout>
 
-    <TextView
-        android:id="@+id/my_accounts_owner_name_main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center"
+
+    <FrameLayout
+        android:id="@+id/my_account_change_information_button"
+        android:layout_width="120dp"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_radius_background_black"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/tamam"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:id="@+id/my_account_add_new_user"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:background="@drawable/custom_radius_background_black"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
         android:layout_marginBottom="16dp"
-        android:text="@string/cemal_name"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-</FrameLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/create_new_user"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

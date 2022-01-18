@@ -9,13 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.databinding.FragmentChooseAyatBinding
-import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
-import android.text.InputFilter
-import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.fragments.continuefragment.ContinueFragment
-import com.test.InputFilterMinMax
+import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 
 class ChooseAyatFragment : Fragment() {
     private lateinit var _binding: FragmentChooseAyatBinding
@@ -38,18 +36,16 @@ class ChooseAyatFragment : Fragment() {
         binding.chooseNumberPicker.maxValue = ayatSize
         binding.chooseNumberPicker.minValue = 1
         binding.chooseSuraName.text = "1. " + Constants.suraNames[suraId] +  " Suresi".uppercase()
-        binding.chooseEditText.filters = arrayOf<InputFilter>(InputFilterMinMax(0, ayatSize))
 
         binding.chooseGoAyatButton.setOnClickListener {
             val continueFragment = ContinueFragment()
-            if (binding.chooseEditText.text.toString() == ""){
-                val ayatId =binding.chooseNumberPicker.value
-                continueFragment.suraPosition = suraId
-                continueFragment.ayatCounter = ayatId - 1
-                activity?.supportFragmentManager?.beginTransaction()
-                    ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
-                    ?.commit()
-            }
+            val ayatId = binding.chooseNumberPicker.value
+            continueFragment.suraPosition = suraId
+            continueFragment.ayatCounter = ayatId - 1
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
+                ?.commit()
+
         }
 
         binding.chooseAyatOwnerNameBiography.setOnClickListener {

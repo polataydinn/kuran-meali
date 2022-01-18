@@ -14,16 +14,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="8dp"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textColor="@color/dark_blue"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <FrameLayout
         android:id="@+id/card_bkz_go_ayat"
-        android:layout_width="100dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/custom_radius_background_black"
         android:layout_marginEnd="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/my_ripple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -36,7 +39,7 @@
             android:layout_gravity="center"
             android:textColor="@color/white"
             android:padding="8dp"
-            android:textSize="18sp"/>
+            android:textSize="14sp"/>
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

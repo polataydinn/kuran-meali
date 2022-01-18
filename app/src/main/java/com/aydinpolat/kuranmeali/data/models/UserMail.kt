@@ -6,5 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "user_email")
 data class UserMail(
     @PrimaryKey
-    val userEmail: String
+    val userEmail: String,
+    val userName: String,
+    val userSurname: String
 )
