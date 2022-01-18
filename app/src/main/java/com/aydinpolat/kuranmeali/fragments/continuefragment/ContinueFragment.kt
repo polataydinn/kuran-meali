@@ -9,6 +9,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +36,9 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.Listener
 import com.google.firebase.storage.FirebaseStorage
+import com.test.InputFilterMinMax
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 
 class ContinueFragment : Fragment() {
@@ -49,8 +55,10 @@ class ContinueFragment : Fragment() {
     private var listOfBkz: MutableList<BkzAyat> = mutableListOf()
     private lateinit var adapter: BkzAdapter
     private lateinit var messageBoxInstanceOfBkz: AlertDialog
+    private var listOfSuggestion: ArrayList<String> = arrayListOf()
     private val storage = FirebaseStorage.getInstance()
     private lateinit var player: ExoPlayer
+    private lateinit var suggestionAdapter: ArrayAdapter<String>
     private lateinit var runnable: Runnable
     val handler = Handler(Looper.getMainLooper())
     var isAutoPlaying = true
@@ -164,9 +172,11 @@ class ContinueFragment : Fragment() {
                 listOfSuras = it
                 binding.continueSuraName.text = listOfSuras[suraPosition!!].suraName
                 binding.continueTurkishAyat.text =
-                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
                 binding.continueCounterText.text =
                     (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
                 checkForIfAyatHasNote()
@@ -308,51 +318,124 @@ class ContinueFragment : Fragment() {
         showSearchDialog()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showSearchDialog() {
         val messageBoxView = LayoutInflater.from((activity as MainActivity))
             .inflate(R.layout.custom_search_dialog, null)
         val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
         val searchSuraEditText =
-            messageBoxView.findViewById<EditText>(R.id.dialog_search_sura_edit_text)
+            messageBoxView.findViewById<AutoCompleteTextView>(R.id.dialog_search_sura_edit_text)
         val searchAyatEditText =
             messageBoxView.findViewById<EditText>(R.id.dialog_search_ayat_edittext)
         val dialogCloseButton =
             messageBoxView.findViewById<ImageView>(R.id.dialog_close_button_search)
         val goAyatButton =
             messageBoxView.findViewById<FrameLayout>(R.id.dialog_search_go_ayat_button)
+        val ayatSizeText = messageBoxView.findViewById<TextView>(R.id.search_ayat_size)
 
         val messageBoxInstance = messageBoxBuilder.show()
         messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        searchSuraEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                listOfSuggestion = arrayListOf()
+                var suraName = searchSuraEditText.text.toString().uppercase()
+
+                suraName = "%$suraName%"
+                baseViewModel.searchDatabase(suraName)
+                    .observeOnce(viewLifecycleOwner) { searchResponse ->
+                        if (searchResponse.isNotEmpty()) {
+                            searchResponse.forEach {
+                                listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
+                            }
+                            suggestionAdapter = ArrayAdapter<String>(
+                                (activity as MainActivity),
+                                android.R.layout.simple_list_item_1,
+                                listOfSuggestion.distinct()
+                            )
+                            searchAyatEditText.filters =
+                                arrayOf<InputFilter>(
+                                    InputFilterMinMax(
+                                        1,
+                                        searchResponse[0].ayets.size
+                                    )
+                                )
+                            searchSuraEditText.setAdapter(suggestionAdapter)
+                            searchSuraEditText.showDropDown()
+                        }
+                    }
+
+                baseViewModel.searchDatabase(changedSuraName(suraName)).observeOnce(viewLifecycleOwner){ searchResponse ->
+                    if (searchResponse.isNotEmpty()) {
+                        searchResponse.forEach {
+                            listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
+                        }
+                        suggestionAdapter = ArrayAdapter<String>(
+                            (activity as MainActivity),
+                            android.R.layout.simple_list_item_1,
+                            listOfSuggestion.distinct()
+                        )
+                        searchAyatEditText.filters =
+                            arrayOf<InputFilter>(
+                                InputFilterMinMax(
+                                    1,
+                                    searchResponse[0].ayets.size
+                                )
+                            )
+                        searchSuraEditText.setAdapter(suggestionAdapter)
+                        searchSuraEditText.showDropDown()
+                    }
+                }
+            }
+
+            override fun afterTextChanged(p0: Editable?) {}
+
+        })
+
+        searchSuraEditText.setOnItemClickListener { adapterView, view, i, l ->
+        val suraName = "%"+searchSuraEditText.text.toString().substringBefore(" ") + "%"
+            baseViewModel.searchDatabase(suraName).observeOnce(viewLifecycleOwner){search ->
+                if (!search.isNullOrEmpty()){
+                    ayatSizeText.text = "(" + search[0].ayets.size + ")"
+                }
+            }
+        }
         goAyatButton.setOnClickListener {
-            var suraName = searchSuraEditText.text.toString()
+            var suraName = searchSuraEditText.text.toString().substringBefore(" ")
             suraName = "%$suraName%"
             var ayatId = searchAyatEditText.text.toString()
-            if (ayatId == ""){
+            if (ayatId == "") {
                 Toast.makeText(
                     requireContext(),
                     "Lütfen Ayet Numarasını Giriniz",
                     Toast.LENGTH_SHORT
                 ).show()
-            }else if (!ayatId.contains(" ")){
-                baseViewModel.searchDatabase(suraName).observeOnce(viewLifecycleOwner){ searchResponse ->
-                    if (searchResponse.isNotEmpty()){
-                        suraPosition = searchResponse[0].suraId
-                        if (searchResponse[0].ayets.size > (ayatId.toInt() - 1) && ((ayatId.toInt() - 1)  >= 0) ){
-                            ayatCounter = ayatId.toInt() - 1
-                            languageChooser()
-                            setTopInformation()
-                            messageBoxInstance.dismiss()
-                        }else{
-                            Toast.makeText(requireContext(), "Ayet Bulunamadı", Toast.LENGTH_SHORT)
+            } else if (!ayatId.contains(" ")) {
+                baseViewModel.searchDatabase(suraName)
+                    .observe(viewLifecycleOwner) { searchResponse ->
+                        if (searchResponse.isNotEmpty()) {
+
+                            suraPosition = searchResponse[0].suraId
+                            if (searchResponse[0].ayets.size > (ayatId.toInt() - 1) && ((ayatId.toInt() - 1) >= 0)) {
+                                ayatCounter = ayatId.toInt() - 1
+                                languageChooser()
+                                setTopInformation()
+                                messageBoxInstance.dismiss()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Ayet Bulunamadı",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Sure Bulunamadı", Toast.LENGTH_SHORT)
                                 .show()
                         }
-                    }else{
-                        Toast.makeText(requireContext(), "Sure Bulunamadı", Toast.LENGTH_SHORT)
-                            .show()
                     }
-                }
-            }else{
+            } else {
                 Toast.makeText(requireContext(), "Yanlış Karakter Girdiniz", Toast.LENGTH_SHORT)
                     .show()
             }
@@ -361,6 +444,20 @@ class ContinueFragment : Fragment() {
         dialogCloseButton.setOnClickListener {
             messageBoxInstance.dismiss()
         }
+    }
+
+    private fun changedSuraName(suraName: String): String {
+        var tempSuraName = suraName
+        if (suraName.uppercase().contains("A")){
+            tempSuraName = suraName.replace("A","Â")
+        }
+        if (suraName.uppercase().contains("U")){
+            tempSuraName = suraName.replace("U","Û")
+        }
+        if (suraName.uppercase().contains("E")){
+            tempSuraName = suraName.replace("E","Ê")
+        }
+        return tempSuraName
     }
 
     private fun addNoteToDatabase() {
@@ -563,7 +660,9 @@ class ContinueFragment : Fragment() {
     private fun setListOfBkzAndShow() {
         listOfBkz = mutableListOf()
         listOfSuras[suraPosition!!].ayets[ayatCounter].bkz.split(" ").forEach {
-            if (it != "") {
+            val letter: Pattern = Pattern.compile("[a-zA-z]")
+            val hasLetter: Matcher = letter.matcher(it)
+            if (it != "" && !hasLetter.find()) {
                 listOfBkz.add(
                     BkzAyat(
                         it.substringBefore("/").toInt() - 1,
@@ -653,7 +752,7 @@ class ContinueFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setTurkishTextOnly() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
-            binding.continueArabicAyat.text =
+            binding.continueArabicAyat.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
 
             binding.continueTopLanguage.text = "Türkçe"
@@ -665,7 +764,7 @@ class ContinueFragment : Fragment() {
             binding.continueCounterText.text =
                 (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
 
-            binding.continueArabicAyat.text =
+            binding.continueArabicAyat.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
             binding.continueTopLanguage.text = "Türkçe"
         }
@@ -675,7 +774,7 @@ class ContinueFragment : Fragment() {
     private fun setArabicTextOnly() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
             if (listOfSuras[suraPosition!!].ayetsArabic.size > ayatCounter) {
-                binding.continueArabicAyat.text =
+                binding.continueArabicAyat.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                     listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
             }
 
@@ -689,8 +788,8 @@ class ContinueFragment : Fragment() {
                 (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
 
             if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
-                binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayetsArabic.filter { it.ayatId == listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId }[0].ayatText
+                binding.continueArabicAyat.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"
@@ -701,11 +800,13 @@ class ContinueFragment : Fragment() {
     private fun setBothTurkishAndArabicText() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
             binding.continueTurkishAyat.text =
-                listOfSuras[suraPosition!!].ayets.get(ayatCounter).ayatText
+                listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                        listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
 
             if (listOfSuras[suraPosition!!].ayetsArabic.size > ayatCounter) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"
@@ -719,10 +820,12 @@ class ContinueFragment : Fragment() {
                 (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
 
             binding.continueTurkishAyat.text =
-                listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
+                listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                        listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
             if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"

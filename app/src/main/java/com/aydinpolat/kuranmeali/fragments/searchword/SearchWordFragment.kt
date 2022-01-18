@@ -2,6 +2,7 @@ package com.aydinpolat.kuranmeali.fragments.searchword
 
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -21,12 +22,13 @@ import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 import com.aydinpolat.kuranmeali.fragments.myaccount.MyAccountFragment
 import com.aydinpolat.kuranmeali.util.observeOnce
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
+import com.test.InputFilterMinMax
 
 class SearchWordFragment : Fragment() {
     private lateinit var _binding: FragmentSearchWordBinding
     private val binding get() = _binding
     private val baseViewModel: BaseViewModel by viewModels()
-    private val listOfSuggestion: ArrayList<String> = arrayListOf()
+    private var listOfSuggestion: ArrayList<String> = arrayListOf()
     private lateinit var suggestionAdapter: ArrayAdapter<String>
     var listOfSearchResponse = mutableListOf<Ayats>()
     var isSuggessEditTextClicked: Boolean = true
@@ -58,19 +60,30 @@ class SearchWordFragment : Fragment() {
         searchEditTextListeners()
         setSuraForwardFragment()
 
+        binding.searchRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
+            when (binding.searchRadioGroup.checkedRadioButtonId) {
+                R.id.search_sura_radio_button -> {
+                    isSuggessEditTextClicked = true
+                }
+                R.id.search_ayat_radio_button -> {
+                    isSuggessEditTextClicked = false
+                }
+            }
+        }
+
     }
 
     private fun setSuraForwardFragment() {
         binding.searchSearchButton.setOnClickListener {
             when (binding.searchRadioGroup.checkedRadioButtonId) {
                 R.id.search_sura_radio_button -> {
-                    searchSura()
                     isSuggessEditTextClicked = true
+                    searchSura()
                 }
                 R.id.search_ayat_radio_button -> {
-                    searchWholeDatabase()
-                    listOfSearchResponse.clear()
                     isSuggessEditTextClicked = false
+                    searchWholeDatabase()
+                    listOfSearchResponse = mutableListOf()
                 }
             }
 
@@ -131,34 +144,60 @@ class SearchWordFragment : Fragment() {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                var suraName = binding.searchEt.text.toString().uppercase()
+                suraName = "%$suraName%"
                 if (isSuggessEditTextClicked) {
-                    var suraName = binding.searchEt.text.toString()
-                    suraName = "%$suraName%"
+                    listOfSuggestion = arrayListOf()
                     baseViewModel.searchDatabase(suraName)
                         .observeOnce(viewLifecycleOwner) { searchResponse ->
                             if (searchResponse.isNotEmpty()) {
-                                listOfSuggestion.clear()
                                 searchResponse.forEach {
-                                    listOfSuggestion.add(it.suraName)
+                                    listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
                                 }
                                 suggestionAdapter = ArrayAdapter<String>(
                                     (activity as MainActivity),
                                     android.R.layout.simple_list_item_1,
-                                    listOfSuggestion
+                                    listOfSuggestion.distinct()
                                 )
                                 binding.searchEt.setAdapter(suggestionAdapter)
+                                binding.searchEt.showDropDown()
                             }
                         }
+                }
+                baseViewModel.searchDatabase(changedSuraName(suraName)).observeOnce(viewLifecycleOwner){ searchResponse ->
+                    if (searchResponse.isNotEmpty()) {
+                        searchResponse.forEach {
+                            listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
+                        }
+                        suggestionAdapter = ArrayAdapter<String>(
+                            (activity as MainActivity),
+                            android.R.layout.simple_list_item_1,
+                            listOfSuggestion.distinct()
+                        )
+                        binding.searchEt.setAdapter(suggestionAdapter)
+                        binding.searchEt.showDropDown()
+                    }
                 }
 
             }
 
             override fun afterTextChanged(p0: Editable?) {}
         })
+
+
     }
 
-    override fun onPause() {
-        super.onPause()
-        fragmentManager?.beginTransaction()?.remove(this)?.commitAllowingStateLoss()
+    private fun changedSuraName(suraName: String): String {
+        var tempSuraName = suraName
+        if (suraName.uppercase().contains("A")){
+            tempSuraName = suraName.replace("A","Â")
+        }
+        if (suraName.uppercase().contains("U")){
+            tempSuraName = suraName.replace("U","Û")
+        }
+        if (suraName.uppercase().contains("E")){
+            tempSuraName = suraName.replace("E","Ê")
+        }
+        return tempSuraName
     }
 }
