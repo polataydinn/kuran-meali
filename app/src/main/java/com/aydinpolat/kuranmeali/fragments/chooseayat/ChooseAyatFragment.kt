@@ -35,7 +35,7 @@ class ChooseAyatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.chooseNumberPicker.maxValue = ayatSize
         binding.chooseNumberPicker.minValue = 1
-        binding.chooseSuraName.text = "1. " + Constants.suraNames[suraId] +  " Suresi".uppercase()
+        binding.chooseSuraName.text = (suraId + 1).toString()+ ". " + Constants.suraNames[suraId].uppercase() +  " SÛRESİ"
 
         binding.chooseGoAyatButton.setOnClickListener {
             val continueFragment = ContinueFragment()

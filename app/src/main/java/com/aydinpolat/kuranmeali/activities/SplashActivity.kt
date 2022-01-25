@@ -12,7 +12,7 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.listenMealRoot.setOnClickListener {
+        binding.splashStartActivity.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             this.finish()

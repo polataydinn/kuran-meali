@@ -1,6 +1,10 @@
 package com.aydinpolat.kuranmeali.util
 
+import android.app.Activity
 import android.media.MediaPlayer
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -35,4 +39,11 @@ fun ExoPlayer.milliSecondsToTimer(ms: Long): String {
 
     finalString = finalString + minutes + ":" + secondString
     return finalString
+}
+
+
+fun Activity.hideSoftKeyboard(editText: EditText) {
+        val inputMethodManager = ContextCompat.getSystemService(this, InputMethodManager::class.java)!!
+        inputMethodManager.hideSoftInputFromWindow(editText.windowToken, 0)
+
 }

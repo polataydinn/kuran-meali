@@ -15,6 +15,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,7 +26,6 @@ import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.data.models.BkzAyat
 import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.data.models.UserNote
-import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
 import com.aydinpolat.kuranmeali.fragments.continuefragment.adapter.BkzAdapter
 import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 import com.aydinpolat.kuranmeali.util.milliSecondsToTimer
@@ -39,6 +39,18 @@ import com.google.firebase.storage.FirebaseStorage
 import com.test.InputFilterMinMax
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import android.os.Build
+import android.text.InputType
+
+import android.widget.EditText
+import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
+import com.aydinpolat.kuranmeali.util.hideSoftKeyboard
+import android.widget.LinearLayout
+
+import com.google.android.material.bottomsheet.BottomSheetDialog
+
+
+
 
 
 class ContinueFragment : Fragment() {
@@ -318,13 +330,15 @@ class ContinueFragment : Fragment() {
         showSearchDialog()
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     private fun showSearchDialog() {
         val messageBoxView = LayoutInflater.from((activity as MainActivity))
             .inflate(R.layout.custom_search_dialog, null)
         val messageBoxBuilder = AlertDialog.Builder(activity).setView(messageBoxView)
         val searchSuraEditText =
             messageBoxView.findViewById<AutoCompleteTextView>(R.id.dialog_search_sura_edit_text)
+        val searchAyatSpinner =
+            messageBoxView.findViewById<NumberPicker>(R.id.choose_number_picker_bottom_sheet)
         val searchAyatEditText =
             messageBoxView.findViewById<EditText>(R.id.dialog_search_ayat_edittext)
         val dialogCloseButton =
@@ -334,6 +348,8 @@ class ContinueFragment : Fragment() {
         val ayatSizeText = messageBoxView.findViewById<TextView>(R.id.search_ayat_size)
 
         val messageBoxInstance = messageBoxBuilder.show()
+        searchAyatEditText.setShowSoftInputOnFocus(false)
+        disableSoftInputFromAppearing(searchAyatEditText)
         messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         searchSuraEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -347,7 +363,7 @@ class ContinueFragment : Fragment() {
                     .observeOnce(viewLifecycleOwner) { searchResponse ->
                         if (searchResponse.isNotEmpty()) {
                             searchResponse.forEach {
-                                listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
+                                listOfSuggestion.add((it.suraId + 1).toString() + ". " + it.suraName.uppercase() + " SÛRESİ")
                             }
                             suggestionAdapter = ArrayAdapter<String>(
                                 (activity as MainActivity),
@@ -369,7 +385,7 @@ class ContinueFragment : Fragment() {
                 baseViewModel.searchDatabase(changedSuraName(suraName)).observeOnce(viewLifecycleOwner){ searchResponse ->
                     if (searchResponse.isNotEmpty()) {
                         searchResponse.forEach {
-                            listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
+                            listOfSuggestion.add((it.suraId + 1).toString() + ". " + it.suraName.uppercase() + " SÛRESİ")
                         }
                         suggestionAdapter = ArrayAdapter<String>(
                             (activity as MainActivity),
@@ -393,16 +409,33 @@ class ContinueFragment : Fragment() {
 
         })
 
+        searchAyatEditText.setOnTouchListener { view, motionEvent ->
+            searchAyatSpinner.visibility = View.VISIBLE
+            return@setOnTouchListener true
+        }
+
+        searchAyatSpinner.setOnValueChangedListener { numberPicker, i, i2 ->
+            searchAyatEditText.setText(i2.toString())
+        }
+
         searchSuraEditText.setOnItemClickListener { adapterView, view, i, l ->
-        val suraName = "%"+searchSuraEditText.text.toString().substringBefore(" ") + "%"
+        var suraName = "%"+searchSuraEditText.text.toString().substringAfter(" ").substringBefore(" ") + "%"
+            if (suraName == "%VÂKI’A%"){
+                suraName = "%VÂKı’A%"
+            }
             baseViewModel.searchDatabase(suraName).observeOnce(viewLifecycleOwner){search ->
                 if (!search.isNullOrEmpty()){
                     ayatSizeText.text = "(" + search[0].ayets.size + ")"
+                    searchAyatSpinner.minValue = 1
+                    searchAyatSpinner.maxValue = search[0].ayets.size
                 }
             }
+            (activity as MainActivity).hideSoftKeyboard(searchSuraEditText)
         }
+
+
         goAyatButton.setOnClickListener {
-            var suraName = searchSuraEditText.text.toString().substringBefore(" ")
+            var suraName = searchSuraEditText.text.toString().substringAfter(" ").substringBefore(" ")
             suraName = "%$suraName%"
             var ayatId = searchAyatEditText.text.toString()
             if (ayatId == "") {
@@ -443,6 +476,17 @@ class ContinueFragment : Fragment() {
 
         dialogCloseButton.setOnClickListener {
             messageBoxInstance.dismiss()
+        }
+    }
+
+
+    fun disableSoftInputFromAppearing(editText: EditText) {
+        if (Build.VERSION.SDK_INT >= 11) {
+            editText.setRawInputType(InputType.TYPE_CLASS_TEXT)
+            editText.setTextIsSelectable(true)
+        } else {
+            editText.setRawInputType(InputType.TYPE_NULL)
+            editText.isFocusable = true
         }
     }
 

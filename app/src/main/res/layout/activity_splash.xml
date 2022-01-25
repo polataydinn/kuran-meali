@@ -13,6 +13,7 @@
         android:layout_marginBottom="64dp">
 
         <ImageView
+            android:id="@+id/splash_start_activity"
             android:layout_width="64dp"
             android:clickable="true"
             android:focusable="true"

@@ -91,18 +91,19 @@ class SearchWordFragment : Fragment() {
     }
 
     private fun searchWholeDatabase() {
+        listOfSuggestion.clear()
         var searchGuess = binding.searchEt.text.toString()
-        baseViewModel.getAllSuras?.observeOnce(viewLifecycleOwner){
-            if (!it.isNullOrEmpty()){
+        baseViewModel.getAllSuras?.observeOnce(viewLifecycleOwner) {
+            if (!it.isNullOrEmpty()) {
                 it.forEach {
                     it.ayets.forEach { ayat ->
-                        if (ayat.ayatText.uppercase().contains(searchGuess.uppercase())){
+                        if (ayat.ayatText.uppercase().contains(searchGuess.uppercase())) {
                             listOfSearchResponse.add(ayat)
                         }
                     }
 
                 }
-                if (!listOfSearchResponse.isNullOrEmpty()){
+                if (!listOfSearchResponse.isNullOrEmpty()) {
                     val chooseListAyatFragment = ChooseListAyatFragment()
                     chooseListAyatFragment.listOfAyats = listOfSearchResponse
                     chooseListAyatFragment.searchedWord = searchGuess
@@ -110,7 +111,7 @@ class SearchWordFragment : Fragment() {
                         ?.replace(R.id.main_container_view, chooseListAyatFragment)
                         ?.addToBackStack("")
                         ?.commit()
-                }else{
+                } else {
                     Toast.makeText(
                         requireContext(),
                         "Aranana kelimeye ait sonuç bulunamadı",
@@ -124,10 +125,14 @@ class SearchWordFragment : Fragment() {
 
     private fun searchSura() {
         var suraName = binding.searchEt.text.toString()
+        if (suraName.contains(" ") && suraName.contains(".")) {
+            suraName = suraName.substringAfter(" ")
+            suraName = suraName.substringBefore(" ")
+        }
         suraName = "%$suraName%"
         baseViewModel.searchDatabase(suraName)
             .observeOnce(viewLifecycleOwner) { searchResponse ->
-                if (suraName.isNotEmpty()) {
+                if (!searchResponse.isNullOrEmpty()) {
                     val chooseAyatFragment = ChooseAyatFragment()
                     chooseAyatFragment.ayatSize = searchResponse[0].ayets.size
                     chooseAyatFragment.suraId = searchResponse[0].suraId
@@ -135,6 +140,12 @@ class SearchWordFragment : Fragment() {
                         ?.replace(R.id.main_container_view, chooseAyatFragment)
                         ?.addToBackStack("")
                         ?.commit()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Aradığınız Sure Bulunamadı",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
@@ -152,7 +163,7 @@ class SearchWordFragment : Fragment() {
                         .observeOnce(viewLifecycleOwner) { searchResponse ->
                             if (searchResponse.isNotEmpty()) {
                                 searchResponse.forEach {
-                                    listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
+                                    listOfSuggestion.add((it.suraId + 1).toString() + ". " + it.suraName.uppercase() + " SÛRESİ")
                                 }
                                 suggestionAdapter = ArrayAdapter<String>(
                                     (activity as MainActivity),
@@ -163,22 +174,25 @@ class SearchWordFragment : Fragment() {
                                 binding.searchEt.showDropDown()
                             }
                         }
-                }
-                baseViewModel.searchDatabase(changedSuraName(suraName)).observeOnce(viewLifecycleOwner){ searchResponse ->
-                    if (searchResponse.isNotEmpty()) {
-                        searchResponse.forEach {
-                            listOfSuggestion.add(it.suraName.uppercase() + " SÛRESİ")
-                        }
-                        suggestionAdapter = ArrayAdapter<String>(
-                            (activity as MainActivity),
-                            android.R.layout.simple_list_item_1,
-                            listOfSuggestion.distinct()
-                        )
-                        binding.searchEt.setAdapter(suggestionAdapter)
-                        binding.searchEt.showDropDown()
-                    }
-                }
 
+                    baseViewModel.searchDatabase(changedSuraName(suraName))
+                        .observeOnce(viewLifecycleOwner) { searchResponse ->
+                            if (searchResponse.isNotEmpty()) {
+                                searchResponse.forEach {
+                                    listOfSuggestion.add((it.suraId + 1).toString() + ". " + it.suraName.uppercase() + " SÛRESİ")
+                                }
+                                suggestionAdapter = ArrayAdapter<String>(
+                                    (activity as MainActivity),
+                                    android.R.layout.simple_list_item_1,
+                                    listOfSuggestion.distinct()
+                                )
+                                binding.searchEt.setAdapter(suggestionAdapter)
+                                binding.searchEt.showDropDown()
+                            }
+                        }
+                }else{
+                    binding.searchEt.setAdapter(null)
+                }
             }
 
             override fun afterTextChanged(p0: Editable?) {}
@@ -189,14 +203,14 @@ class SearchWordFragment : Fragment() {
 
     private fun changedSuraName(suraName: String): String {
         var tempSuraName = suraName
-        if (suraName.uppercase().contains("A")){
-            tempSuraName = suraName.replace("A","Â")
+        if (suraName.uppercase().contains("A")) {
+            tempSuraName = suraName.replace("A", "Â")
         }
-        if (suraName.uppercase().contains("U")){
-            tempSuraName = suraName.replace("U","Û")
+        if (suraName.uppercase().contains("U")) {
+            tempSuraName = suraName.replace("U", "Û")
         }
-        if (suraName.uppercase().contains("E")){
-            tempSuraName = suraName.replace("E","Ê")
+        if (suraName.uppercase().contains("E")) {
+            tempSuraName = suraName.replace("E", "Ê")
         }
         return tempSuraName
     }
