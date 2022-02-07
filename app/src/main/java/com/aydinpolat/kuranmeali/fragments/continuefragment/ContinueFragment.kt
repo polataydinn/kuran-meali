@@ -36,7 +36,7 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.Listener
 import com.google.firebase.storage.FirebaseStorage
-import com.test.InputFilterMinMax
+import com.aydinpolat.kuranmeali.util.InputFilterMinMax
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import android.os.Build
@@ -105,8 +105,7 @@ class ContinueFragment : Fragment() {
                 player.play()
                 playerSetListeners()
                 initializeCurrentState()
-            } catch (e: Exception) {
-            }
+            } catch (e: Exception) { }
         }
     }
 
@@ -415,7 +414,7 @@ class ContinueFragment : Fragment() {
         }
 
         searchAyatSpinner.setOnValueChangedListener { numberPicker, i, i2 ->
-            searchAyatEditText.setText(i2.toString())
+            searchAyatEditText.setText(numberPicker.displayedValues[i])
         }
 
         searchSuraEditText.setOnItemClickListener { adapterView, view, i, l ->
@@ -426,8 +425,16 @@ class ContinueFragment : Fragment() {
             baseViewModel.searchDatabase(suraName).observeOnce(viewLifecycleOwner){search ->
                 if (!search.isNullOrEmpty()){
                     ayatSizeText.text = "(" + search[0].ayets.size + ")"
-                    searchAyatSpinner.minValue = 1
+                    val listOfSpinner: Array<String?> = arrayOfNulls(search[0].ayets.size)
+                    var counterArray = 0
+                    search[0].ayets.forEach {
+                        listOfSpinner[counterArray] = it.ayatId
+                        counterArray++
+                    }
+
+                    searchAyatSpinner.minValue = 0
                     searchAyatSpinner.maxValue = search[0].ayets.size
+                    searchAyatSpinner.displayedValues = listOfSpinner
                 }
             }
             (activity as MainActivity).hideSoftKeyboard(searchSuraEditText)
@@ -451,7 +458,7 @@ class ContinueFragment : Fragment() {
 
                             suraPosition = searchResponse[0].suraId
                             if (searchResponse[0].ayets.size > (ayatId.toInt() - 1) && ((ayatId.toInt() - 1) >= 0)) {
-                                ayatCounter = ayatId.toInt() - 1
+                                ayatCounter = searchResponse[0].ayets.filter { it.ayatId == ayatId }[0].ayatId.toInt()
                                 languageChooser()
                                 setTopInformation()
                                 messageBoxInstance.dismiss()
@@ -904,5 +911,12 @@ class ContinueFragment : Fragment() {
                 "\ncemalkulunkoglu.net"
         intent.putExtra(Intent.EXTRA_TEXT, sharetext)
         startActivity(Intent.createChooser(intent, "Ayeti Paylaş"))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player.stop()
+        player.release()
+        player = ExoPlayer.Builder((activity as MainActivity)).build()
     }
 }

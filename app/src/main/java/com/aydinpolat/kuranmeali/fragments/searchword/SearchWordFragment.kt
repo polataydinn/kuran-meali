@@ -2,12 +2,10 @@ package com.aydinpolat.kuranmeali.fragments.searchword
 
 import android.os.Bundle
 import android.text.Editable
-import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -22,7 +20,6 @@ import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 import com.aydinpolat.kuranmeali.fragments.myaccount.MyAccountFragment
 import com.aydinpolat.kuranmeali.util.observeOnce
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
-import com.test.InputFilterMinMax
 
 class SearchWordFragment : Fragment() {
     private lateinit var _binding: FragmentSearchWordBinding

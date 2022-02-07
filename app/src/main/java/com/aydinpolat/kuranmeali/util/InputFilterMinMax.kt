@@ -1,4 +1,4 @@
-package com.test
+package com.aydinpolat.kuranmeali.util
 
 import android.text.InputFilter
 import android.text.Spanned
