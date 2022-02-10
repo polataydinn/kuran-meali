@@ -28,15 +28,12 @@ import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.data.models.UserNote
 import com.aydinpolat.kuranmeali.fragments.continuefragment.adapter.BkzAdapter
 import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
-import com.aydinpolat.kuranmeali.util.milliSecondsToTimer
-import com.aydinpolat.kuranmeali.util.observeOnce
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.Listener
 import com.google.firebase.storage.FirebaseStorage
-import com.aydinpolat.kuranmeali.util.InputFilterMinMax
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import android.os.Build
@@ -44,8 +41,8 @@ import android.text.InputType
 
 import android.widget.EditText
 import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
-import com.aydinpolat.kuranmeali.util.hideSoftKeyboard
 import android.widget.LinearLayout
+import com.aydinpolat.kuranmeali.util.*
 
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -347,8 +344,9 @@ class ContinueFragment : Fragment() {
         val ayatSizeText = messageBoxView.findViewById<TextView>(R.id.search_ayat_size)
 
         val messageBoxInstance = messageBoxBuilder.show()
-        searchAyatEditText.setShowSoftInputOnFocus(false)
+        searchAyatEditText.showSoftInputOnFocus = false
         disableSoftInputFromAppearing(searchAyatEditText)
+
         messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         searchSuraEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -369,13 +367,6 @@ class ContinueFragment : Fragment() {
                                 android.R.layout.simple_list_item_1,
                                 listOfSuggestion.distinct()
                             )
-                            searchAyatEditText.filters =
-                                arrayOf<InputFilter>(
-                                    InputFilterMinMax(
-                                        1,
-                                        searchResponse[0].ayets.size
-                                    )
-                                )
                             searchSuraEditText.setAdapter(suggestionAdapter)
                             searchSuraEditText.showDropDown()
                         }
@@ -391,13 +382,6 @@ class ContinueFragment : Fragment() {
                             android.R.layout.simple_list_item_1,
                             listOfSuggestion.distinct()
                         )
-                        searchAyatEditText.filters =
-                            arrayOf<InputFilter>(
-                                InputFilterMinMax(
-                                    1,
-                                    searchResponse[0].ayets.size
-                                )
-                            )
                         searchSuraEditText.setAdapter(suggestionAdapter)
                         searchSuraEditText.showDropDown()
                     }
@@ -410,11 +394,12 @@ class ContinueFragment : Fragment() {
 
         searchAyatEditText.setOnTouchListener { view, motionEvent ->
             searchAyatSpinner.visibility = View.VISIBLE
+            searchAyatEditText.text = searchAyatSpinner.displayedValues[0].toEditable()
             return@setOnTouchListener true
         }
 
         searchAyatSpinner.setOnValueChangedListener { numberPicker, i, i2 ->
-            searchAyatEditText.setText(numberPicker.displayedValues[i])
+            searchAyatEditText.text = numberPicker.displayedValues[i2].toEditable()
         }
 
         searchSuraEditText.setOnItemClickListener { adapterView, view, i, l ->
@@ -431,9 +416,8 @@ class ContinueFragment : Fragment() {
                         listOfSpinner[counterArray] = it.ayatId
                         counterArray++
                     }
-
                     searchAyatSpinner.minValue = 0
-                    searchAyatSpinner.maxValue = search[0].ayets.size
+                    searchAyatSpinner.maxValue = search[0].ayets.size -1
                     searchAyatSpinner.displayedValues = listOfSpinner
                 }
             }
@@ -457,8 +441,10 @@ class ContinueFragment : Fragment() {
                         if (searchResponse.isNotEmpty()) {
 
                             suraPosition = searchResponse[0].suraId
-                            if (searchResponse[0].ayets.size > (ayatId.toInt() - 1) && ((ayatId.toInt() - 1) >= 0)) {
-                                ayatCounter = searchResponse[0].ayets.filter { it.ayatId == ayatId }[0].ayatId.toInt()
+                            val mAyatId = searchResponse[0].ayets.getItemPositionByName(ayatId)
+
+                            if (searchResponse[0].ayets.size > (mAyatId.toInt() - 1) && ((mAyatId.toInt() - 1) >= 0)) {
+                                ayatCounter = mAyatId
                                 languageChooser()
                                 setTopInformation()
                                 messageBoxInstance.dismiss()

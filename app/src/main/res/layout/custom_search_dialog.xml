@@ -103,7 +103,6 @@
         android:layout_marginTop="16dp"
         android:background="@color/grey"
         android:paddingStart="8dp"
-        android:inputType="none"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 

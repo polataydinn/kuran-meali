@@ -11,8 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.constants.Constants
+import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentChooseAyatBinding
 import com.aydinpolat.kuranmeali.fragments.continuefragment.ContinueFragment
+import com.aydinpolat.kuranmeali.util.getItemPositionByName
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 
 class ChooseAyatFragment : Fragment() {
@@ -21,6 +23,7 @@ class ChooseAyatFragment : Fragment() {
     private val baseViewModel: BaseViewModel by viewModels()
     var suraId = 0
     var ayatSize = 0
+    var sura: Suras? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,15 +36,23 @@ class ChooseAyatFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.chooseNumberPicker.maxValue = ayatSize
-        binding.chooseNumberPicker.minValue = 1
+        val listOfSpinner: Array<String?> = arrayOfNulls(sura?.ayets?.size!!)
+        var counterArray = 0
+        sura?.ayets?.forEach {
+            listOfSpinner[counterArray] = it.ayatId
+            counterArray++
+        }
+        binding.chooseNumberPicker.minValue = 0
+        binding.chooseNumberPicker.maxValue = sura?.ayets?.size!! - 1
+        binding.chooseNumberPicker.displayedValues = listOfSpinner
+
         binding.chooseSuraName.text = (suraId + 1).toString()+ ". " + Constants.suraNames[suraId].uppercase() +  " SÛRESİ"
 
         binding.chooseGoAyatButton.setOnClickListener {
             val continueFragment = ContinueFragment()
-            val ayatId = binding.chooseNumberPicker.value
+            val ayatId = sura!!.ayets.getItemPositionByName(binding.chooseNumberPicker.displayedValues[binding.chooseNumberPicker.value])
             continueFragment.suraPosition = suraId
-            continueFragment.ayatCounter = ayatId - 1
+            continueFragment.ayatCounter = ayatId
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
                 ?.commit()

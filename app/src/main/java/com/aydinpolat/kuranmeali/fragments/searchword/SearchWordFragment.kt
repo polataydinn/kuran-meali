@@ -133,6 +133,7 @@ class SearchWordFragment : Fragment() {
                     val chooseAyatFragment = ChooseAyatFragment()
                     chooseAyatFragment.ayatSize = searchResponse[0].ayets.size
                     chooseAyatFragment.suraId = searchResponse[0].suraId
+                    chooseAyatFragment.sura = searchResponse[0]
                     activity?.supportFragmentManager?.beginTransaction()
                         ?.replace(R.id.main_container_view, chooseAyatFragment)
                         ?.addToBackStack("")

@@ -10,8 +10,12 @@ class SuraViewHolder(private val binding: CustomSuraCardBinding) : RecyclerView.
     fun bind(suras: Suras, onClickLister: (Suras, Int) -> Unit) {
         binding.suraCardNumber.text = (suras.suraId + 1).toString()
         binding.suraCardSuraName.text = suras.suraName.uppercase() + " SÛRESİ"
-        binding.suraCardAyatSize.text = "(" + suras.ayets.size + ")"
-
+        if (suras.ayets.last().ayatId.contains("-")){
+            val ayatId = suras.ayets.last().ayatId.substringAfter("-")
+            binding.suraCardAyatSize.text = "($ayatId)"
+        }else{
+            binding.suraCardAyatSize.text = "(" + suras.ayets.last().ayatId + ")"
+        }
         binding.root.setOnClickListener {
             onClickLister(suras, absoluteAdapterPosition)
         }
