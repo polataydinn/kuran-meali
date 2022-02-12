@@ -90,6 +90,9 @@ class ContinueFragment : Fragment() {
         val storageRef = storage.reference
         storageRef.child("${item}.mp3").downloadUrl.addOnSuccessListener {
             try {
+                player.stop()
+                player.release()
+                player = ExoPlayer.Builder((activity as MainActivity)).build()
                 val mediaItem = MediaItem.Builder()
                     .setUri(it)
                     .build()
@@ -119,8 +122,14 @@ class ContinueFragment : Fragment() {
                 super.onPlaybackStateChanged(playbackState)
                 if (playbackState == Player.STATE_ENDED) {
                     val ayat = listOfSuras[suraPosition!!].ayets[ayatCounter]
-                    if (isAutoPlaying){
-                        if (isSuraNoteReading) {
+                    val lastIndexOfAyat = listOfSuras[suraPosition!!].ayets.size - 1
+                    if (isAutoPlaying) {
+                        if (ayatCounter == lastIndexOfAyat && !isSuraNoteReading) {
+                            ayatCounter++
+                            languageChooser()
+                            showSuraExplanationBox()
+                            isSuraNoteReading = true
+                        }else if (isSuraNoteReading) {
                             isSuraNoteReading = false
                             suraNoteDialog?.dismiss()
                             setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
@@ -254,15 +263,16 @@ class ContinueFragment : Fragment() {
                 if (player.mediaItemCount > 0) {
                     player.play()
                 } else {
-                    val isAyatHasNote = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote.isNullOrEmpty()
-                    if (ayatCounter == 0 && !isSuraNoteReading){
+                    val isAyatHasNote =
+                        listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote.isNullOrEmpty()
+                    if (ayatCounter == 0 && !isSuraNoteReading) {
                         showSuraExplanationBox()
                         isSuraNoteReading = true
-                    }else if (isAyatHasNote && isSuraNoteReading && !isAyatNoteReading){
+                    } else if (isAyatHasNote && isSuraNoteReading && !isAyatNoteReading) {
                         isSuraNoteReading = false
                         isAyatNoteReading = true
                         showAyatExplanationBox()
-                    }else{
+                    } else {
                         setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
                     }
                 }
@@ -805,7 +815,7 @@ class ContinueFragment : Fragment() {
 
         setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
 
-        ayatNameView.text = Constants.suraNames[suraPosition!!] + (ayatCounter + 1) + " " + ". Ayet"
+        ayatNameView.text = Constants.suraNames[suraPosition!!] + " "+ (ayatCounter + 1) +  ". Ayet"
         ayatExplanationView.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote
         suraOrAyat.text = "Cemal Külünkoğlu'nun yorumu"
         ayatNoteDialog = messageBoxBuilder.show()
