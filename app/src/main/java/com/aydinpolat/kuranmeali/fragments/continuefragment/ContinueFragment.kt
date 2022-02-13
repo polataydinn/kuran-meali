@@ -232,6 +232,10 @@ class ContinueFragment : Fragment() {
 
     private fun setBkzAdapter() {
         adapter = BkzAdapter {
+            player.stop()
+            player.release()
+            player = ExoPlayer.Builder((activity as MainActivity)).build()
+            binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
             ayatCounter = it.ayatId
             suraPosition = it.suraId
             messageBoxInstanceOfBkz.dismiss()
@@ -587,7 +591,7 @@ class ContinueFragment : Fragment() {
                     user.userMail == getSelectedUser
                 }
                 temptList.forEach { userNote ->
-                    listOfBkz.add(BkzAyat(userNote.suraId, userNote.ayatId, true))
+                    listOfBkz.add(BkzAyat(userNote.suraId, userNote.ayatId, true, userNote.userNote))
                 }
                 customTitle.text = "Notlarım"
                 customDescription.text = temptList.size.toString() + " ayet için not oluşturdunuz"
@@ -620,15 +624,7 @@ class ContinueFragment : Fragment() {
         dialogTitle.text = Constants.suraNames[bkzAyat.suraId] + " Suresi"
         dialogDescription.text = (bkzAyat.ayatId + 1).toString() + ". Ayet"
 
-        baseViewModel.getAllNote?.observeOnce(viewLifecycleOwner) {
-            if (!it.isNullOrEmpty()) {
-                val selectedNote = it.filter { user ->
-                    user.userMail == getSelectedUser && user.ayatId == bkzAyat.ayatId && user.suraId == bkzAyat.suraId
-                }
-
-                dialogNote.text = selectedNote[0].userNote
-            }
-        }
+        dialogNote.text = bkzAyat.ayatNote
 
         val messageBoxInstance = messageBoxBuilder.show()
         messageBoxInstance.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -713,7 +709,7 @@ class ContinueFragment : Fragment() {
         binding.continueChantCurrentProgress.progress = 0
         binding.continueCurrentLenght.text = "0:00"
         binding.continueTotalLenght.text = "0:00"
-
+        binding.continueBottomTextSeek.visibility = View.INVISIBLE
         when (toggleCounter) {
             0 -> {
                 setBothTurkishAndArabic()
@@ -769,7 +765,8 @@ class ContinueFragment : Fragment() {
                     BkzAyat(
                         it.substringBefore("/").toInt() - 1,
                         it.substringAfter("/").toInt() - 1,
-                        false
+                        false,
+                        ""
                     )
                 )
             }
