@@ -126,6 +126,9 @@ class SearchWordFragment : Fragment() {
             suraName = suraName.substringAfter(" ")
             suraName = suraName.substringBefore(" ")
         }
+        if (suraName == "VÂKI’A") {
+            suraName = "VÂKı’A"
+        }
         suraName = "%$suraName%"
         baseViewModel.searchDatabase(suraName)
             .observeOnce(viewLifecycleOwner) { searchResponse ->

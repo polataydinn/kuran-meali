@@ -6,10 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -24,8 +26,10 @@ import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.data.models.BkzAyat
 import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.data.models.UserNote
+import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
 import com.aydinpolat.kuranmeali.fragments.continuefragment.adapter.BkzAdapter
 import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
+import com.aydinpolat.kuranmeali.util.*
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -34,12 +38,6 @@ import com.google.android.exoplayer2.Player.Listener
 import com.google.firebase.storage.FirebaseStorage
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import android.os.Build
-import android.text.InputType
-
-import android.widget.EditText
-import com.aydinpolat.kuranmeali.databinding.FragmentContinueBinding
-import com.aydinpolat.kuranmeali.util.*
 
 
 class ContinueFragment : Fragment() {
@@ -67,6 +65,9 @@ class ContinueFragment : Fragment() {
     private var isSuraNoteReading = false
     var ayatNoteDialog: AlertDialog? = null
     var suraNoteDialog: AlertDialog? = null
+    var isAyatNoteButtonClicked: Boolean = false
+    var isSuraNoteButtonClicked: Boolean = false
+    var isPaused = false
 
 
     override fun onCreateView(
@@ -110,42 +111,50 @@ class ContinueFragment : Fragment() {
         player.addListener(object : Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 super.onIsPlayingChanged(isPlaying)
-                if (!isPlaying) {
+                if (!isPlaying && isPaused) {
                     handler.removeCallbacks(runnable)
+                } else if (!isPlaying && !isPaused) {
+                    handler.removeCallbacks(runnable)
+                    initializeCurrentState()
+                    binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
+                    binding.continueTotalLenght.text = player.milliSecondsToTimer(player.duration)
                 } else {
                     binding.continuePlayButton.setImageResource(R.drawable.ic_stop_white)
                     binding.continueTotalLenght.text = player.milliSecondsToTimer(player.duration)
                 }
             }
 
+
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
                 if (playbackState == Player.STATE_ENDED) {
-                    val ayat = listOfSuras[suraPosition!!].ayets[ayatCounter]
-                    val lastIndexOfAyat = listOfSuras[suraPosition!!].ayets.size - 1
-                    if (isAutoPlaying) {
-                        if (ayatCounter == lastIndexOfAyat && !isSuraNoteReading) {
-                            ayatCounter++
-                            languageChooser()
-                            showSuraExplanationBox()
-                            isSuraNoteReading = true
-                        }else if (isSuraNoteReading) {
-                            isSuraNoteReading = false
-                            suraNoteDialog?.dismiss()
-                            setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
-                        } else if (ayat.ayatNote.isNotEmpty() && !isAyatNoteReading) {
-                            showAyatExplanationBox()
-                            isAyatNoteReading = true
-                        } else if (isAutoPlaying && !isAyatNoteReading && !isSuraNoteReading) {
-                            ayatCounter++
-                            languageChooser()
-                            setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
-                        } else if (isAyatNoteReading && ayat.ayatNote.isNotEmpty()) {
-                            ayatNoteDialog?.dismiss()
-                            ayatCounter++
-                            languageChooser()
-                            setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
-                            isAyatNoteReading = false
+                    if (!isAyatNoteButtonClicked && !isSuraNoteButtonClicked) {
+                        val ayat = listOfSuras[suraPosition!!].ayets[ayatCounter]
+                        val lastIndexOfAyat = listOfSuras[suraPosition!!].ayets.size - 1
+                        if (isAutoPlaying) {
+                            if (ayatCounter == lastIndexOfAyat && !isSuraNoteReading) {
+                                ayatCounter++
+                                languageChooser()
+                                showSuraExplanationBox()
+                                isSuraNoteReading = true
+                            } else if (isSuraNoteReading) {
+                                isSuraNoteReading = false
+                                suraNoteDialog?.dismiss()
+                                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
+                            } else if (ayat.ayatNote.isNotEmpty() && !isAyatNoteReading) {
+                                showAyatExplanationBox()
+                                isAyatNoteReading = true
+                            } else if (isAutoPlaying && !isAyatNoteReading && !isSuraNoteReading) {
+                                ayatCounter++
+                                languageChooser()
+                                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
+                            } else if (isAyatNoteReading && ayat.ayatNote.isNotEmpty()) {
+                                ayatNoteDialog?.dismiss()
+                                ayatCounter++
+                                languageChooser()
+                                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
+                                isAyatNoteReading = false
+                            }
                         }
                     }
                 }
@@ -171,7 +180,7 @@ class ContinueFragment : Fragment() {
         binding.continueBottomTextSeek.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                if (p1 > 50) {
+                if (p1 > 35) {
                     val size = (p1 / 3).toFloat()
                     binding.continueTurkishAyat.textSize = size
                 }
@@ -184,7 +193,7 @@ class ContinueFragment : Fragment() {
         binding.continueTopTextSeek.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                if (p1 > 50) {
+                if (p1 > 35) {
                     val size = (p1 / 3).toFloat()
                     binding.continueArabicAyat.textSize = size
                 }
@@ -225,6 +234,7 @@ class ContinueFragment : Fragment() {
                     (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
                 checkForIfAyatHasNote()
                 checkForIfAyatHasBkz()
+                setLatestSuraAndAyat()
             }
         }
 
@@ -262,10 +272,12 @@ class ContinueFragment : Fragment() {
         binding.continuePlayButton.setOnClickListener {
             if (player.isPlaying) {
                 player.pause()
+                isPaused = true
                 binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
             } else {
                 if (player.mediaItemCount > 0) {
                     player.play()
+                    isPaused = false
                 } else {
                     val isAyatHasNote =
                         listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote.isNullOrEmpty()
@@ -313,10 +325,6 @@ class ContinueFragment : Fragment() {
             player.release()
             player = ExoPlayer.Builder((activity as MainActivity)).build()
             binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
-            if (isAutoPlaying) {
-                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
-            }
-
         }
 
         binding.continuePreviousAyat.setOnClickListener {
@@ -328,12 +336,10 @@ class ContinueFragment : Fragment() {
             player.release()
             player = ExoPlayer.Builder((activity as MainActivity)).build()
             binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
-            if (isAutoPlaying) {
-                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
-            }
         }
 
         binding.continueSuraExplanation.setOnClickListener {
+            isSuraNoteButtonClicked = true
             showSuraExplanationBox()
         }
 
@@ -357,6 +363,7 @@ class ContinueFragment : Fragment() {
         }
 
         binding.continueAyatNote.setOnClickListener {
+            isAyatNoteButtonClicked = true
             showAyatExplanationBox()
         }
 
@@ -487,6 +494,9 @@ class ContinueFragment : Fragment() {
             var suraName =
                 searchSuraEditText.text.toString().substringAfter(" ").substringBefore(" ")
             suraName = "%$suraName%"
+            if (suraName == "%VÂKI’A%") {
+                suraName = "%VÂKı’A%"
+            }
             var ayatId = searchAyatEditText.text.toString()
             if (ayatId == "") {
                 Toast.makeText(
@@ -502,7 +512,7 @@ class ContinueFragment : Fragment() {
                             suraPosition = searchResponse[0].suraId
                             val mAyatId = searchResponse[0].ayets.getItemPositionByName(ayatId)
 
-                            if (searchResponse[0].ayets.size > (mAyatId.toInt() - 1) && ((mAyatId.toInt() - 1) >= 0)) {
+                            if (searchResponse[0].ayets.size > (mAyatId - 1) && ((mAyatId - 1) >= 0)) {
                                 ayatCounter = mAyatId
                                 languageChooser()
                                 setTopInformation()
@@ -687,7 +697,30 @@ class ContinueFragment : Fragment() {
         val suraOrAyat =
             messageBoxView.findViewById<TextView>(R.id.dialog_to_choose_sure_or_ayat_text)
         val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button)
-        setFirebase("${suraPosition}/${suraPosition}-a")
+        val ayatPlayButton = messageBoxView.findViewById<ImageView>(R.id.dialog_play_button)
+        var mIsPaused = false
+
+        if (!isSuraNoteButtonClicked) {
+            setFirebase("${suraPosition}/${suraPosition}-a")
+            ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
+        }
+
+        ayatPlayButton.setOnClickListener {
+            if (!player.isPlaying && !mIsPaused) {
+                setFirebase("${suraPosition}/${suraPosition}-a")
+                ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
+            } else if (player.isPlaying) {
+                player.pause()
+                mIsPaused = true
+                isPaused = true
+                ayatPlayButton.setImageResource(R.drawable.ic_play_black)
+            } else if (mIsPaused) {
+                player.play()
+                mIsPaused = false
+                isPaused = false
+                ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
+            }
+        }
 
         suraNameView.text = Constants.suraNames[suraPosition!!]
         suraExplanationView.text = listOfSuras[suraPosition!!].suraNote
@@ -695,11 +728,15 @@ class ContinueFragment : Fragment() {
         suraNoteDialog = messageBoxBuilder.show()
         suraNoteDialog!!.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialogCloseButton.setOnClickListener {
+            suraNoteDialog!!.dismiss()
+        }
+        suraNoteDialog!!.setOnDismissListener {
+            isSuraNoteButtonClicked = false
+            isSuraNoteReading = false
             player.stop()
             player.release()
             player = ExoPlayer.Builder((activity as MainActivity)).build()
             binding.continuePlayButton.setImageResource(R.drawable.ic_play_white)
-            suraNoteDialog!!.dismiss()
         }
     }
 
@@ -713,17 +750,32 @@ class ContinueFragment : Fragment() {
         when (toggleCounter) {
             0 -> {
                 setBothTurkishAndArabic()
+                setExtentedViewToNormal()
             }
             1 -> {
                 setOnlyTurkish()
+                extendAyatEditText()
             }
             2 -> {
                 setOnlyArabic()
+                extendAyatEditText()
             }
         }
         checkForIfAyatHasNote()
         checkForIfAyatHasBkz()
         setLatestSuraAndAyat()
+    }
+
+    private fun extendAyatEditText() {
+        val params = binding.continueArabicScrollview.layoutParams
+        params.height = resources.getDimension(R.dimen.edittext_height).toInt()
+        binding.continueArabicScrollview.layoutParams = params
+    }
+
+    private fun setExtentedViewToNormal() {
+        val params = binding.continueArabicScrollview.layoutParams
+        params.height = resources.getDimension(R.dimen.edittext_normal_height).toInt()
+        binding.continueArabicScrollview.layoutParams = params
     }
 
     private fun setLatestSuraAndAyat() {
@@ -810,15 +862,43 @@ class ContinueFragment : Fragment() {
             messageBoxView.findViewById<TextView>(R.id.dialog_to_choose_sure_or_ayat_text)
         val dialogCloseButton = messageBoxView.findViewById<ImageView>(R.id.dialog_close_button)
 
-        setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
+        val ayatPlayButton = messageBoxView.findViewById<ImageView>(R.id.dialog_play_button)
+        var mIsPaused = false
 
-        ayatNameView.text = Constants.suraNames[suraPosition!!] + " "+ (ayatCounter + 1) +  ". Ayet"
+        ayatPlayButton.setOnClickListener {
+            if (!player.isPlaying && !mIsPaused) {
+                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
+                ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
+            } else if (player.isPlaying) {
+                player.pause()
+                mIsPaused = true
+                isPaused = false
+                ayatPlayButton.setImageResource(R.drawable.ic_play_black)
+            } else if (mIsPaused) {
+                player.play()
+                mIsPaused = false
+                isPaused = true
+                ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
+            }
+        }
+
+        if (!isAyatNoteButtonClicked) {
+            setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
+            ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
+        }
+
+        ayatNameView.text = Constants.suraNames[suraPosition!!] + " " + (ayatCounter + 1) + ". Ayet"
         ayatExplanationView.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote
         suraOrAyat.text = "Cemal Külünkoğlu'nun yorumu"
         ayatNoteDialog = messageBoxBuilder.show()
         ayatNoteDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialogCloseButton.setOnClickListener {
             ayatNoteDialog?.dismiss()
+        }
+
+        ayatNoteDialog!!.setOnDismissListener {
+            isAyatNoteButtonClicked = false
+            isAyatNoteReading = false
             player.stop()
             player.release()
             player = ExoPlayer.Builder((activity as MainActivity)).build()

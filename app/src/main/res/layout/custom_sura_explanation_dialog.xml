@@ -46,6 +46,19 @@
             android:foreground="@drawable/my_ripple"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_close_red" />
+
+        <ImageView
+            android:id="@+id/dialog_play_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="end"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="@drawable/my_ripple"
+            android:layout_marginEnd="65dp"
+            android:src="@drawable/ic_play_black"/>
+
         <TextView
             android:id="@+id/dialog_to_choose_sure_or_ayat_text"
             android:layout_width="wrap_content"
