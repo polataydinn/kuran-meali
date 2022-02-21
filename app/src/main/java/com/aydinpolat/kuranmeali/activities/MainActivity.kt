@@ -199,11 +199,9 @@ class MainActivity : AppCompatActivity() {
                         ayatNote.substringBefore(" ").removePrefix("notlar").substringBefore("-")
                             .toInt() - 1
                     val ayatNumber =
-                        ayatNote.substringBefore(" ").removePrefix("notlar").substringAfter("-")
+                        ayatNote.substringBefore(" ").removePrefix("notlar").substringAfter("-").toInt() - 1
                     try {
-                        listOfSuras[suraNumber].ayets.filter {
-                            it.ayatId == ayatNumber || it.ayatId.contains(ayatNumber + "-") || it.ayatId.contains("-" + ayatNumber)
-                        }[0].ayatNote = ayatNote.substringAfter(" ")
+                        listOfSuras[suraNumber].ayets[ayatNumber].ayatNote = ayatNote.substringAfter(" ")
                     } catch (i: IndexOutOfBoundsException) {
                         println("breakpoint")
                     }
