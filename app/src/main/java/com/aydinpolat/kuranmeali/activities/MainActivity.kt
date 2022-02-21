@@ -202,9 +202,7 @@ class MainActivity : AppCompatActivity() {
                         ayatNote.substringBefore(" ").removePrefix("notlar").substringAfter("-")
                     try {
                         listOfSuras[suraNumber].ayets.filter {
-                            it.ayatId == ayatNumber || it.ayatId.contains(
-                                ayatNumber + "-"
-                            ) || it.ayatId.contains("-" + ayatNumber)
+                            it.ayatId == ayatNumber || it.ayatId.contains(ayatNumber + "-") || it.ayatId.contains("-" + ayatNumber)
                         }[0].ayatNote = ayatNote.substringAfter(" ")
                     } catch (i: IndexOutOfBoundsException) {
                         println("breakpoint")

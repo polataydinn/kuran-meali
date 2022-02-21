@@ -13,6 +13,7 @@ import android.os.Looper
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -136,13 +137,17 @@ class ContinueFragment : Fragment() {
                             if (ayatCounter == lastIndexOfAyat && !isSuraNoteReading && isAyatNoteReading) {
                                 ayatCounter++
                                 languageChooser()
+                                if (isAyatNoteReading){
+                                    ayatNoteDialog?.dismiss()
+                                    isAyatNoteReading = false
+                                }
                                 showSuraExplanationBox()
                                 isSuraNoteReading = true
                             } else if (isSuraNoteReading) {
                                 isSuraNoteReading = false
                                 suraNoteDialog?.dismiss()
                                 setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
-                            } else if (ayat.ayatNote.isNotEmpty() && !isAyatNoteReading && !isSuraDismissed) {
+                            } else if (ayat.ayatNote.isNotEmpty() && !isAyatNoteReading) {
                                 showAyatExplanationBox()
                                 isAyatNoteReading = true
                             } else if (isAutoPlaying && !isAyatNoteReading && !isSuraNoteReading) {
@@ -227,13 +232,15 @@ class ContinueFragment : Fragment() {
         baseViewModel.getAllSuras?.observeOnce(viewLifecycleOwner) {
             if (!it.isNullOrEmpty()) {
                 listOfSuras = it
+                val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
+                val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
                 binding.continueSuraName.text = listOfSuras[suraPosition!!].suraName
                 binding.continueTurkishAyat.text =
                     listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                             listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
-                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText
                 binding.continueCounterText.text =
                     (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
                 checkForIfAyatHasNote()
@@ -735,6 +742,7 @@ class ContinueFragment : Fragment() {
             suraNoteDialog!!.dismiss()
         }
         suraNoteDialog!!.setOnDismissListener {
+            isSuraDismissed = true
             isSuraNoteButtonClicked = false
             isSuraNoteReading = false
             player.stop()
@@ -751,6 +759,7 @@ class ContinueFragment : Fragment() {
         binding.continueCurrentLenght.text = "0:00"
         binding.continueTotalLenght.text = "0:00"
         binding.continueBottomTextSeek.visibility = View.INVISIBLE
+        isSuraDismissed = false
         when (toggleCounter) {
             0 -> {
                 setBothTurkishAndArabic()
@@ -875,14 +884,14 @@ class ContinueFragment : Fragment() {
             if (!player.isPlaying && !mIsPaused) {
                 if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-" + (ayatId + 2).toString() + "-")){
                     ayatId += 2
-                    setFirebase("${suraPosition}/${suraPosition}-${ayatId}c")
+                    setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                     ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
                 }else if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-")){
                     ayatId += 1
-                    setFirebase("${suraPosition}/${suraPosition}-${ayatId}c")
+                    setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                     ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
                 }else{
-                    setFirebase("${suraPosition}/${suraPosition}-${ayatId}c")
+                    setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                     ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
                 }
             } else if (player.isPlaying) {
@@ -901,14 +910,14 @@ class ContinueFragment : Fragment() {
         if (!isAyatNoteButtonClicked) {
             if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-" + (ayatId + 2).toString() + "-")){
                 ayatId += 2
-                setFirebase("${suraPosition}/${suraPosition}-${ayatId}c")
+                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                 ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
             }else if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-")){
                 ayatId += 1
-                setFirebase("${suraPosition}/${suraPosition}-${ayatId}c")
+                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                 ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
             }else{
-                setFirebase("${suraPosition}/${suraPosition}-${ayatId}c")
+                setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                 ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
             }
         }
@@ -923,7 +932,6 @@ class ContinueFragment : Fragment() {
         }
 
         ayatNoteDialog!!.setOnDismissListener {
-            isSuraDismissed = true
             isAyatNoteButtonClicked = false
             isAyatNoteReading = false
             player.stop()
@@ -974,32 +982,39 @@ class ContinueFragment : Fragment() {
             binding.continueArabicAyat.text =
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                         listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
-            binding.continueTopLanguage.text = "Türkçe"
+
+            binding.continueArabicAyat.gravity = Gravity.START
+            binding.continueTopLanguage.text  = "Türkçe"
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun setArabicTextOnly() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
-            if (listOfSuras[suraPosition!!].ayetsArabic.size > ayatCounter) {
+            val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
+            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+            if (listOfSuras[suraPosition!!].ayetsArabic.size > arabicAyatId) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
-                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText
+                binding.continueArabicAyat.gravity = Gravity.END
             }
 
             binding.continueTopLanguage.text = "Arapça"
         } else {
             suraPosition = suraPosition!! + 1
             ayatCounter = 0
+            val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
+            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
             binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
 
             binding.continueCounterText.text =
                 (listOfSuras[suraPosition!!].suraId.plus(1)).toString() + "/114"
 
-            if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
+            if (listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText.isNotEmpty()) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
-                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"
@@ -1009,14 +1024,17 @@ class ContinueFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setBothTurkishAndArabicText() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
+            val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
+            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+
             binding.continueTurkishAyat.text =
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                         listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
 
-            if (listOfSuras[suraPosition!!].ayetsArabic.size > ayatCounter) {
+            if (listOfSuras[suraPosition!!].ayetsArabic.size > arabicAyatId) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
-                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"
@@ -1024,6 +1042,9 @@ class ContinueFragment : Fragment() {
         } else {
             suraPosition = suraPosition!! + 1
             ayatCounter = 0
+            val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
+            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+
             binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
 
             binding.continueCounterText.text =
@@ -1032,10 +1053,10 @@ class ContinueFragment : Fragment() {
             binding.continueTurkishAyat.text =
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
                         listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
-            if (listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText.isNotEmpty()) {
+            if (listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText.isNotEmpty()) {
                 binding.continueArabicAyat.text =
-                    listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
-                            listOfSuras[suraPosition!!].ayetsArabic[ayatCounter].ayatText
+                    listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatId + ". " +
+                            listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatText
             }
 
             binding.continueTopLanguage.text = "Arapça"
