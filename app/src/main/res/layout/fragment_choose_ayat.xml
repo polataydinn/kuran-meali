@@ -8,7 +8,7 @@
     tools:context=".fragments.chooseayat.ChooseAyatFragment">
 
     <ImageView
-        android:id="@+id/search_ayat_back_press"
+        android:id="@+id/choose_ayat_back_press"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginStart="24dp"
@@ -25,9 +25,9 @@
         android:id="@+id/search_ayat_listen_meal_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/search_ayat_profile_button"
-        app:layout_constraintStart_toEndOf="@+id/search_ayat_back_press"
-        app:layout_constraintTop_toTopOf="@+id/search_ayat_back_press">
+        app:layout_constraintEnd_toStartOf="@+id/choose_ayat_profile"
+        app:layout_constraintStart_toEndOf="@+id/choose_ayat_back_press"
+        app:layout_constraintTop_toTopOf="@+id/choose_ayat_back_press">
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/search_ayat_profile_button"
+        android:id="@+id/choose_ayat_profile"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_marginTop="8dp"

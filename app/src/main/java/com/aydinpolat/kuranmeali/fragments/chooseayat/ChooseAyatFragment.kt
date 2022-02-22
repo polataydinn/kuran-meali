@@ -14,13 +14,15 @@ import com.aydinpolat.kuranmeali.constants.Constants
 import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentChooseAyatBinding
 import com.aydinpolat.kuranmeali.fragments.continuefragment.ContinueFragment
+import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
+import com.aydinpolat.kuranmeali.fragments.myaccount.MyAccountFragment
+import com.aydinpolat.kuranmeali.fragments.searchword.SearchWordFragment
 import com.aydinpolat.kuranmeali.util.getItemPositionByName
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 
 class ChooseAyatFragment : Fragment() {
     private lateinit var _binding: FragmentChooseAyatBinding
     private val binding get() = _binding
-    private val baseViewModel: BaseViewModel by viewModels()
     var suraId = 0
     var ayatSize = 0
     var sura: Suras? = null
@@ -56,7 +58,18 @@ class ChooseAyatFragment : Fragment() {
             activity?.supportFragmentManager?.beginTransaction()
                 ?.replace(R.id.main_container_view, continueFragment)?.addToBackStack("")
                 ?.commit()
+        }
 
+        binding.chooseAyatBackPress.setOnClickListener{
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.main_container_view, SearchWordFragment())?.addToBackStack("")
+                ?.commit()
+        }
+
+        binding.chooseAyatProfile.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.replace(R.id.main_container_view, MyAccountFragment())?.addToBackStack("")
+                ?.commit()
         }
 
         binding.chooseAyatOwnerNameBiography.setOnClickListener {

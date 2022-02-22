@@ -137,7 +137,7 @@ class ContinueFragment : Fragment() {
                             if (ayatCounter == lastIndexOfAyat && !isSuraNoteReading && isAyatNoteReading) {
                                 ayatCounter++
                                 languageChooser()
-                                if (isAyatNoteReading){
+                                if (isAyatNoteReading) {
                                     ayatNoteDialog?.dismiss()
                                     isAyatNoteReading = false
                                 }
@@ -161,7 +161,7 @@ class ContinueFragment : Fragment() {
                                 setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}")
                                 isAyatNoteReading = false
                             }
-                            if (ayatCounter > 0 && isSuraDismissed){
+                            if (ayatCounter > 0 && isSuraDismissed) {
                                 isSuraDismissed = false
                             }
                         }
@@ -233,7 +233,8 @@ class ContinueFragment : Fragment() {
             if (!it.isNullOrEmpty()) {
                 listOfSuras = it
                 val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
-                val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+                val arabicAyatId =
+                    listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
                 binding.continueSuraName.text = listOfSuras[suraPosition!!].suraName
                 binding.continueTurkishAyat.text =
                     listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
@@ -478,6 +479,23 @@ class ContinueFragment : Fragment() {
         }
 
         searchSuraEditText.setOnItemClickListener { adapterView, view, i, l ->
+
+            val mSuraPosition = searchSuraEditText.text.toString()
+            if (mSuraPosition.contains(".")){
+                suraPosition = searchSuraEditText.text.toString().substringBefore(".").toInt() - 1
+                val sura = listOfSuras[suraPosition!!]
+                ayatSizeText.text = "(" + sura.ayets.size + ")"
+                val listOfSpinner: Array<String?> = arrayOfNulls(sura.ayets.size)
+                var counterArray = 0
+                sura.ayets.forEach {
+                    listOfSpinner[counterArray] = it.ayatId
+                    counterArray++
+                }
+                searchAyatSpinner.minValue = 0
+                searchAyatSpinner.maxValue = sura.ayets.size - 1
+                searchAyatSpinner.displayedValues = listOfSpinner
+            }
+
             var suraName = "%" + searchSuraEditText.text.toString().substringAfter(" ")
                 .substringBefore(" ") + "%"
             if (suraName == "%VÂKI’A%") {
@@ -485,16 +503,7 @@ class ContinueFragment : Fragment() {
             }
             baseViewModel.searchDatabase(suraName).observeOnce(viewLifecycleOwner) { search ->
                 if (!search.isNullOrEmpty()) {
-                    ayatSizeText.text = "(" + search[0].ayets.size + ")"
-                    val listOfSpinner: Array<String?> = arrayOfNulls(search[0].ayets.size)
-                    var counterArray = 0
-                    search[0].ayets.forEach {
-                        listOfSpinner[counterArray] = it.ayatId
-                        counterArray++
-                    }
-                    searchAyatSpinner.minValue = 0
-                    searchAyatSpinner.maxValue = search[0].ayets.size - 1
-                    searchAyatSpinner.displayedValues = listOfSpinner
+
                 }
             }
             (activity as MainActivity).hideSoftKeyboard(searchSuraEditText)
@@ -502,48 +511,14 @@ class ContinueFragment : Fragment() {
 
 
         goAyatButton.setOnClickListener {
-            var suraName =
-                searchSuraEditText.text.toString().substringAfter(" ").substringBefore(" ")
-            suraName = "%$suraName%"
-            if (suraName == "%VÂKI’A%") {
-                suraName = "%VÂKı’A%"
-            }
-            var ayatId = searchAyatEditText.text.toString()
-            if (ayatId == "") {
-                Toast.makeText(
-                    requireContext(),
-                    "Lütfen Ayet Numarasını Giriniz",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else if (!ayatId.contains(" ")) {
-                baseViewModel.searchDatabase(suraName)
-                    .observe(viewLifecycleOwner) { searchResponse ->
-                        if (searchResponse.isNotEmpty()) {
-
-                            suraPosition = searchResponse[0].suraId
-                            val mAyatId = searchResponse[0].ayets.getItemPositionByName(ayatId)
-
-                            if (searchResponse[0].ayets.size > (mAyatId - 1) && ((mAyatId) >= 0)) {
-                                ayatCounter = mAyatId
-                                languageChooser()
-                                setTopInformation()
-                                messageBoxInstance.dismiss()
-                            } else {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Ayet Bulunamadı",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                            }
-                        } else {
-                            Toast.makeText(requireContext(), "Sure Bulunamadı", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    }
-            } else {
-                Toast.makeText(requireContext(), "Yanlış Karakter Girdiniz", Toast.LENGTH_SHORT)
-                    .show()
+            val mSuraPosition = searchSuraEditText.text.toString()
+            if (searchAyatEditText.text.toString() != "" && mSuraPosition.contains(".")){
+                suraPosition = searchSuraEditText.text.toString().substringBefore(".").toInt() - 1
+                val ayatId = searchAyatEditText.text.toString()
+                ayatCounter = listOfSuras[suraPosition!!].ayets.getItemPositionByName(ayatId)
+                languageChooser()
+                setTopInformation()
+                messageBoxInstance.dismiss()
             }
         }
 
@@ -612,7 +587,14 @@ class ContinueFragment : Fragment() {
                     user.userMail == getSelectedUser
                 }
                 temptList.forEach { userNote ->
-                    listOfBkz.add(BkzAyat(userNote.suraId, userNote.ayatId, true, userNote.userNote))
+                    listOfBkz.add(
+                        BkzAyat(
+                            userNote.suraId,
+                            userNote.ayatId,
+                            true,
+                            userNote.userNote
+                        )
+                    )
                 }
                 customTitle.text = "Notlarım"
                 customDescription.text = temptList.size.toString() + " ayet için not oluşturdunuz"
@@ -879,18 +861,18 @@ class ContinueFragment : Fragment() {
         var mIsPaused = false
 
         val ayatObject = listOfSuras[suraPosition!!].ayets[ayatCounter]
-        var ayatId  = ayatObject.ayatId.substringBefore("-").toInt() - 1
+        var ayatId = ayatObject.ayatId.substringBefore("-").toInt() - 1
         ayatPlayButton.setOnClickListener {
             if (!player.isPlaying && !mIsPaused) {
-                if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-" + (ayatId + 2).toString() + "-")){
+                if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-" + (ayatId + 2).toString() + "-")) {
                     ayatId += 2
                     setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                     ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
-                }else if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-")){
+                } else if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-")) {
                     ayatId += 1
                     setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                     ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
-                }else{
+                } else {
                     setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                     ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
                 }
@@ -908,21 +890,22 @@ class ContinueFragment : Fragment() {
         }
 
         if (!isAyatNoteButtonClicked) {
-            if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-" + (ayatId + 2).toString() + "-")){
+            if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-" + (ayatId + 2).toString() + "-")) {
                 ayatId += 2
                 setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                 ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
-            }else if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-")){
+            } else if (suraPosition != 0 && ayatObject.ayatId.contains((ayatId + 1).toString() + "-")) {
                 ayatId += 1
                 setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                 ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
-            }else{
+            } else {
                 setFirebase("${suraPosition}/${suraPosition}-${ayatCounter}c")
                 ayatPlayButton.setImageResource(R.drawable.ic_stop_black)
             }
         }
 
-        ayatNameView.text = Constants.suraNames[suraPosition!!] + " " + listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId+ ". Ayet"
+        ayatNameView.text =
+            Constants.suraNames[suraPosition!!] + " " + listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". Ayet"
         ayatExplanationView.text = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatNote
         suraOrAyat.text = "Cemal Külünkoğlu'nun yorumu"
         ayatNoteDialog = messageBoxBuilder.show()
@@ -984,7 +967,7 @@ class ContinueFragment : Fragment() {
                         listOfSuras[suraPosition!!].ayets[ayatCounter].ayatText
 
             binding.continueArabicAyat.gravity = Gravity.START
-            binding.continueTopLanguage.text  = "Türkçe"
+            binding.continueTopLanguage.text = "Türkçe"
         }
     }
 
@@ -992,7 +975,8 @@ class ContinueFragment : Fragment() {
     private fun setArabicTextOnly() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
             val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
-            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+            val arabicAyatId =
+                listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
             if (listOfSuras[suraPosition!!].ayetsArabic.size > arabicAyatId) {
                 binding.continueArabicAyat.text =
                     listOfSuras[suraPosition!!].ayetsArabic[arabicAyatId].ayatId + ". " +
@@ -1005,7 +989,8 @@ class ContinueFragment : Fragment() {
             suraPosition = suraPosition!! + 1
             ayatCounter = 0
             val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
-            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+            val arabicAyatId =
+                listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
             binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
 
             binding.continueCounterText.text =
@@ -1025,7 +1010,8 @@ class ContinueFragment : Fragment() {
     private fun setBothTurkishAndArabicText() {
         if (listOfSuras[suraPosition!!].ayets.size > ayatCounter) {
             val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
-            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+            val arabicAyatId =
+                listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
 
             binding.continueTurkishAyat.text =
                 listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId + ". " +
@@ -1043,7 +1029,8 @@ class ContinueFragment : Fragment() {
             suraPosition = suraPosition!! + 1
             ayatCounter = 0
             val getTurkishAyatId = listOfSuras[suraPosition!!].ayets[ayatCounter].ayatId
-            val arabicAyatId = listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
+            val arabicAyatId =
+                listOfSuras[suraPosition!!].ayetsArabic.getItemPositionByName(getTurkishAyatId)
 
             binding.continueSuraName.text = Constants.suraNames[suraPosition!!]
 

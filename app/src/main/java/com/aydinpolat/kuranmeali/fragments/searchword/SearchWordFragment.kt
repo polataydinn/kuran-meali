@@ -13,11 +13,13 @@ import androidx.fragment.app.viewModels
 import com.aydinpolat.kuranmeali.R
 import com.aydinpolat.kuranmeali.activities.MainActivity
 import com.aydinpolat.kuranmeali.data.models.Ayats
+import com.aydinpolat.kuranmeali.data.models.Suras
 import com.aydinpolat.kuranmeali.databinding.FragmentSearchWordBinding
 import com.aydinpolat.kuranmeali.fragments.chooseayat.ChooseAyatFragment
 import com.aydinpolat.kuranmeali.fragments.chooselistayat.ChooseListAyatFragment
 import com.aydinpolat.kuranmeali.fragments.mainfragment.MainFragment
 import com.aydinpolat.kuranmeali.fragments.myaccount.MyAccountFragment
+import com.aydinpolat.kuranmeali.util.getItemPositionByName
 import com.aydinpolat.kuranmeali.util.observeOnce
 import com.aydinpolat.kuranmeali.viewmodels.BaseViewModel
 
@@ -29,6 +31,7 @@ class SearchWordFragment : Fragment() {
     private lateinit var suggestionAdapter: ArrayAdapter<String>
     var listOfSearchResponse = mutableListOf<Ayats>()
     var isSuggessEditTextClicked: Boolean = true
+    var listOfSuras: List<Suras> = emptyList()
 
 
     override fun onCreateView(
@@ -41,6 +44,12 @@ class SearchWordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        baseViewModel.getAllSuras?.observeOnce(viewLifecycleOwner) {
+            if (!it.isNullOrEmpty()) {
+                listOfSuras = it
+            }
+        }
         binding.searchSuraRadioButton.isChecked = true
 
         binding.searchBackPress.setOnClickListener {
@@ -129,14 +138,16 @@ class SearchWordFragment : Fragment() {
         if (suraName == "VÂKI’A") {
             suraName = "VÂKı’A"
         }
+        var isFound = false
         suraName = "%$suraName%"
         baseViewModel.searchDatabase(suraName)
             .observeOnce(viewLifecycleOwner) { searchResponse ->
                 if (!searchResponse.isNullOrEmpty()) {
+                    val suraPosition = binding.searchEt.text.toString().substringBefore(".").toInt() - 1
                     val chooseAyatFragment = ChooseAyatFragment()
-                    chooseAyatFragment.ayatSize = searchResponse[0].ayets.size
-                    chooseAyatFragment.suraId = searchResponse[0].suraId
-                    chooseAyatFragment.sura = searchResponse[0]
+                    chooseAyatFragment.ayatSize = listOfSuras[suraPosition].ayets.size
+                    chooseAyatFragment.suraId = listOfSuras[suraPosition].suraId
+                    chooseAyatFragment.sura = listOfSuras[suraPosition]
                     activity?.supportFragmentManager?.beginTransaction()
                         ?.replace(R.id.main_container_view, chooseAyatFragment)
                         ?.addToBackStack("")
@@ -191,7 +202,7 @@ class SearchWordFragment : Fragment() {
                                 binding.searchEt.showDropDown()
                             }
                         }
-                }else{
+                } else {
                     binding.searchEt.setAdapter(null)
                 }
             }
